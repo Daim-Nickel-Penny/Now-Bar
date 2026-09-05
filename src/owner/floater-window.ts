@@ -51,7 +51,11 @@ export async function requestFloaterWindow(view: Window, size: ShellSize): Promi
   sheet.replaceSync(glassCss);
   pip.document.adoptedStyleSheets = [sheet];
   pip.document.documentElement.lang = "en";
-  /** Chrome always draws a title bar on a Document PiP window; the text is the only part we own. */
+  /**
+   * Chrome draws its own title bar on a Document PiP window and paints the opener's origin in it,
+   * not this title. That is deliberate anti-spoofing for an always-on-top window, so the bar cannot
+   * be hidden, restyled, or renamed. The title is still the document's accessible name.
+   */
   pip.document.title = "Now Bar";
   return pip;
 }
