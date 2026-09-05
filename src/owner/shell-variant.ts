@@ -2,12 +2,10 @@ import type { SceneLoop } from "../scene/loop.ts";
 
 export type ShellVariant = "expanded" | "pill" | "icon";
 
-const ORDER: readonly ShellVariant[] = ["expanded", "pill", "icon"];
-
 const SIZES: Record<ShellVariant, { width: number; height: number }> = {
   expanded: { width: 360, height: 220 },
-  pill: { width: 228, height: 40 },
-  icon: { width: 56, height: 56 },
+  pill: { width: 300, height: 44 },
+  icon: { width: 64, height: 64 },
 };
 
 export function nextVariant(current: ShellVariant): ShellVariant {
@@ -25,37 +23,19 @@ export function nextVariant(current: ShellVariant): ShellVariant {
   }
 }
 
-export function cycleShell(
+export function applyVariant(
   shell: HTMLElement,
   scenes: SceneLoop,
-  current: ShellVariant,
-): ShellVariant {
-  const next = nextVariant(current);
-  const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-  if (next !== "expanded") {
-    scenes.stop();
-  }
-  shell.dataset.variant = next;
-  if (next === "expanded") {
+  variant: ShellVariant,
+): void {
+  shell.dataset.variant = variant;
+  if (variant === "expanded") {
     void scenes.start();
+    return;
   }
-  const size = SIZES[next];
-  if (window.documentPictureInPicture?.window) {
-    return next;
-  }
-  void chrome.windows.getCurrent().then((win) => {
-    if (win.id === undefined) {
-      return;
-    }
-    void chrome.windows.update(win.id, {
-      width: size.width,
-      height: size.height,
-    });
-  });
-  void reduced;
-  return next;
+  scenes.stop();
 }
 
-export function variantOrder(): readonly ShellVariant[] {
-  return ORDER;
+export function variantSize(variant: ShellVariant): { width: number; height: number } {
+  return SIZES[variant];
 }
