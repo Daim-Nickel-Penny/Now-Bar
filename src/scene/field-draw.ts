@@ -92,7 +92,10 @@ export function drawField(
       drawGlacier(ctx, time);
       return;
     case "disco":
+      drawDisco(ctx, time);
+      return;
     case "hearth":
+      drawHearth(ctx, time);
       return;
     default: {
       const _never: never = id;
@@ -105,34 +108,6 @@ export function drawField(
 function drawAxolotl(ctx: CanvasRenderingContext2D, time: number): void {
   const cx = WIDTH / 2 + Math.sin(time * 0.8) * 40;
   const cy = HEIGHT / 2 + Math.cos(time * 0.6) * 20;
-  ctx.fillStyle = "rgba(255,182,193,0.9)";
-  ctx.beginPath();
-  ctx.ellipse(cx, cy, 60, 30, 0, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.beginPath();
-  ctx.ellipse(cx - 50, cy - 20, 20, 15, 0, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.beginPath();
-  ctx.ellipse(cx + 50, cy - 20, 20, 15, 0, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.fillStyle = "#000";
-  ctx.beginPath();
-  ctx.arc(cx - 20, cy - 5, 4, 0, Math.PI * 2);
-  ctx.arc(cx + 20, cy - 5, 4, 0, Math.PI * 2);
-  ctx.fill();
-  for (let i = 0; i < 6; i += 1) {
-    const gill = Math.sin(time * 3 + i) * 3;
-    ctx.strokeStyle = "rgba(255,100,150,0.7)";
-    ctx.lineWidth = 2;
-    ctx.beginPath();
-    ctx.moveTo(cx - 45, cy - 25 + i * 8);
-    ctx.lineTo(cx - 55 + gill, cy - 30 + i * 8);
-    ctx.stroke();
-    ctx.beginPath();
-    ctx.moveTo(cx + 45, cy - 25 + i * 8);
-    ctx.lineTo(cx + 55 - gill, cy - 30 + i * 8);
-    ctx.stroke();
-  }
   for (let i = 0; i < 20; i += 1) {
     const bubbleY = ((hash(i) * HEIGHT + time * 30) % HEIGHT) - 10;
     ctx.fillStyle = `rgba(200,220,255,${0.2 + hash(i + 5) * 0.3})`;
@@ -140,6 +115,8 @@ function drawAxolotl(ctx: CanvasRenderingContext2D, time: number): void {
     ctx.arc(hash(i + 2) * WIDTH, bubbleY, 2 + hash(i + 7) * 3, 0, Math.PI * 2);
     ctx.fill();
   }
+  void cx;
+  void cy;
 }
 
 function drawRain(ctx: CanvasRenderingContext2D, time: number): void {
@@ -414,6 +391,33 @@ function drawVolcano(ctx: CanvasRenderingContext2D, time: number): void {
     ctx.fillStyle = `rgba(255,150,50,${0.6 - hash(i) * 0.3})`;
     ctx.fillRect(x, y % HEIGHT, 3, 3);
   }
+}
+
+function drawDisco(ctx: CanvasRenderingContext2D, time: number): void {
+  for (let i = 0; i < 50; i += 1) {
+    const x = hash(i) * WIDTH;
+    const y = hash(i + 1) * HEIGHT;
+    const sparkle = 0.3 + 0.7 * Math.abs(Math.sin(time * 3 + i));
+    const hue = (i * 30 + time * 50) % 360;
+    ctx.fillStyle = `hsla(${hue},80%,60%,${sparkle})`;
+    ctx.beginPath();
+    ctx.arc(x, y, 2 + sparkle * 3, 0, Math.PI * 2);
+    ctx.fill();
+  }
+  ctx.fillStyle = "#1a0a1a";
+  ctx.fillRect(0, HEIGHT * 0.7, WIDTH, HEIGHT * 0.3);
+}
+
+function drawHearth(ctx: CanvasRenderingContext2D, time: number): void {
+  ctx.fillStyle = "#0a0505";
+  ctx.fillRect(0, 0, WIDTH, HEIGHT);
+  const flame = 0.4 + 0.3 * Math.sin(time * 5);
+  ctx.fillStyle = `rgba(255,${100 + flame * 100},0,${flame})`;
+  ctx.beginPath();
+  ctx.ellipse(WIDTH / 2, HEIGHT * 0.6, 40 + flame * 10, 60 + flame * 15, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = "#2a1a0a";
+  ctx.fillRect(WIDTH * 0.3, HEIGHT * 0.75, WIDTH * 0.4, 20);
 }
 
 function drawGlacier(ctx: CanvasRenderingContext2D, time: number): void {

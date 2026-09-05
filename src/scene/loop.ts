@@ -1,6 +1,5 @@
 import { asciifyVideo } from "asciify-engine";
 import { drawField, resizeField } from "./field-draw.ts";
-import { drawPlate, resizePlate } from "./plate-draw.ts";
 import { nextScene, sceneAt, type Scene } from "./playlist.ts";
 
 type Stop = () => void;
@@ -33,7 +32,7 @@ export function createSceneLoop(mount: HTMLElement): SceneLoop {
       return;
     }
     try {
-      stopCurrent = next.kind === "plate" ? await playPlate(mount, next) : await playField(mount, next);
+      stopCurrent = await playField(mount, next);
     } catch {
       stopCurrent = undefined;
     }
@@ -62,29 +61,11 @@ export function createSceneLoop(mount: HTMLElement): SceneLoop {
   };
 }
 
-async function playPlate(mount: HTMLElement, scene: Scene): Promise<Stop> {
-  const image = await loadPlate(scene.src);
-  const source = document.createElement("canvas");
-  const ctx = resizePlate(source);
-  return driveVideo(mount, source, (time) => {
-    drawPlate(ctx, image, scene.motion, time, scene.activity);
-  });
-}
-
 async function playField(mount: HTMLElement, scene: Scene): Promise<Stop> {
   const source = document.createElement("canvas");
   const ctx = resizeField(source);
   return driveVideo(mount, source, (time) => {
     drawField(ctx, scene.id, time, scene.activity);
-  });
-}
-
-function loadPlate(src: string): Promise<HTMLImageElement> {
-  return new Promise((resolve, reject) => {
-    const image = new Image();
-    image.onload = () => resolve(image);
-    image.onerror = () => reject(new Error("plate"));
-    image.src = chrome.runtime.getURL(src);
   });
 }
 

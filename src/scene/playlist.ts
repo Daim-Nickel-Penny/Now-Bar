@@ -1,8 +1,6 @@
 import type { AxolotlActivity } from "./axolotl-sprite.ts";
 
 export type SceneId =
-  | "disco"
-  | "hearth"
   | "axolotl"
   | "rain"
   | "night"
@@ -23,43 +21,44 @@ export type SceneId =
   | "harbor"
   | "meadow"
   | "volcano"
-  | "glacier";
+  | "glacier"
+  | "disco"
+  | "hearth";
 
 export type SceneMotion = "sparkle" | "flicker" | "drift" | "rain" | "swim";
 
 export type Scene = {
   id: SceneId;
-  src: string;
-  kind: "plate" | "field";
+  kind: "field";
   motion: SceneMotion;
   loopMs: number;
   activity: AxolotlActivity;
 };
 
 export const playlist: readonly Scene[] = [
-  { id: "disco", src: "scenes/disco.png", kind: "plate", motion: "sparkle", loopMs: 20000, activity: "dancing" },
-  { id: "hearth", src: "scenes/hearth.png", kind: "plate", motion: "flicker", loopMs: 18000, activity: "reading" },
-  { id: "axolotl", src: "", kind: "field", motion: "swim", loopMs: 22000, activity: "sleeping" },
-  { id: "rain", src: "", kind: "field", motion: "rain", loopMs: 16000, activity: "reading" },
-  { id: "night", src: "", kind: "field", motion: "drift", loopMs: 22000, activity: "sleeping" },
-  { id: "forest", src: "", kind: "field", motion: "drift", loopMs: 20000, activity: "painting" },
-  { id: "waves", src: "", kind: "field", motion: "flicker", loopMs: 17000, activity: "dancing" },
-  { id: "aurora", src: "", kind: "field", motion: "drift", loopMs: 24000, activity: "sleeping" },
-  { id: "neon", src: "", kind: "field", motion: "sparkle", loopMs: 16000, activity: "gaming" },
-  { id: "city", src: "", kind: "field", motion: "sparkle", loopMs: 19000, activity: "guitar" },
-  { id: "desert", src: "", kind: "field", motion: "drift", loopMs: 21000, activity: "chores" },
-  { id: "ocean", src: "", kind: "field", motion: "swim", loopMs: 20000, activity: "dancing" },
-  { id: "mountain", src: "", kind: "field", motion: "drift", loopMs: 23000, activity: "reading" },
-  { id: "cave", src: "", kind: "field", motion: "flicker", loopMs: 18000, activity: "cooking" },
-  { id: "garden", src: "", kind: "field", motion: "drift", loopMs: 20000, activity: "chores" },
-  { id: "library", src: "", kind: "field", motion: "flicker", loopMs: 22000, activity: "reading" },
-  { id: "studio", src: "", kind: "field", motion: "sparkle", loopMs: 17000, activity: "guitar" },
-  { id: "arcade", src: "", kind: "field", motion: "sparkle", loopMs: 16000, activity: "gaming" },
-  { id: "observatory", src: "", kind: "field", motion: "drift", loopMs: 25000, activity: "reading" },
-  { id: "harbor", src: "", kind: "field", motion: "swim", loopMs: 21000, activity: "cooking" },
-  { id: "meadow", src: "", kind: "field", motion: "drift", loopMs: 19000, activity: "painting" },
-  { id: "volcano", src: "", kind: "field", motion: "flicker", loopMs: 18000, activity: "cooking" },
-  { id: "glacier", src: "", kind: "field", motion: "drift", loopMs: 24000, activity: "sleeping" },
+  { id: "axolotl", kind: "field", motion: "swim", loopMs: 22000, activity: "sleeping" },
+  { id: "rain", kind: "field", motion: "rain", loopMs: 16000, activity: "reading" },
+  { id: "night", kind: "field", motion: "drift", loopMs: 22000, activity: "sleeping" },
+  { id: "forest", kind: "field", motion: "drift", loopMs: 20000, activity: "painting" },
+  { id: "waves", kind: "field", motion: "flicker", loopMs: 17000, activity: "dancing" },
+  { id: "aurora", kind: "field", motion: "drift", loopMs: 24000, activity: "sleeping" },
+  { id: "neon", kind: "field", motion: "sparkle", loopMs: 16000, activity: "gaming" },
+  { id: "city", kind: "field", motion: "sparkle", loopMs: 19000, activity: "guitar" },
+  { id: "desert", kind: "field", motion: "drift", loopMs: 21000, activity: "chores" },
+  { id: "ocean", kind: "field", motion: "swim", loopMs: 20000, activity: "dancing" },
+  { id: "mountain", kind: "field", motion: "drift", loopMs: 23000, activity: "reading" },
+  { id: "cave", kind: "field", motion: "flicker", loopMs: 18000, activity: "cooking" },
+  { id: "garden", kind: "field", motion: "drift", loopMs: 20000, activity: "chores" },
+  { id: "library", kind: "field", motion: "flicker", loopMs: 22000, activity: "reading" },
+  { id: "studio", kind: "field", motion: "sparkle", loopMs: 17000, activity: "guitar" },
+  { id: "arcade", kind: "field", motion: "sparkle", loopMs: 16000, activity: "gaming" },
+  { id: "observatory", kind: "field", motion: "drift", loopMs: 25000, activity: "reading" },
+  { id: "harbor", kind: "field", motion: "swim", loopMs: 21000, activity: "cooking" },
+  { id: "meadow", kind: "field", motion: "drift", loopMs: 19000, activity: "painting" },
+  { id: "volcano", kind: "field", motion: "flicker", loopMs: 18000, activity: "cooking" },
+  { id: "glacier", kind: "field", motion: "drift", loopMs: 24000, activity: "sleeping" },
+  { id: "disco", kind: "field", motion: "sparkle", loopMs: 20000, activity: "dancing" },
+  { id: "hearth", kind: "field", motion: "flicker", loopMs: 18000, activity: "reading" },
 ];
 
 export function sceneAt(index: number): Scene {

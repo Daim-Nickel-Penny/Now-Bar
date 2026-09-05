@@ -1,6 +1,7 @@
 import { observeBar, postTrack } from "./observe-bar.ts";
 import { mediaPlaying, readImageSrc, readText } from "./read-text.ts";
 import { sanitizeTrack } from "../track/sanitize-track.ts";
+import { initFloater, setTrack } from "./floater.ts";
 
 function readSpotifyWeb(): ReturnType<typeof sanitizeTrack> {
   const bar = document.querySelector("[data-testid='now-playing-widget']");
@@ -26,4 +27,9 @@ function readSpotifyWeb(): ReturnType<typeof sanitizeTrack> {
   });
 }
 
-observeBar(readSpotifyWeb, postTrack);
+observeBar(readSpotifyWeb, (track) => {
+  postTrack(track);
+  setTrack(track);
+});
+
+initFloater();

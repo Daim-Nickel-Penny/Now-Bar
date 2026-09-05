@@ -1,6 +1,7 @@
 import { observeBar, postTrack } from "./observe-bar.ts";
 import { mediaPlaying, readImageSrc, readText } from "./read-text.ts";
 import { sanitizeTrack } from "../track/sanitize-track.ts";
+import { initFloater, setTrack } from "./floater.ts";
 
 function readYoutubeMusic(): ReturnType<typeof sanitizeTrack> {
   const bar = document.querySelector("ytmusic-player-bar");
@@ -17,4 +18,9 @@ function readYoutubeMusic(): ReturnType<typeof sanitizeTrack> {
   });
 }
 
-observeBar(readYoutubeMusic, postTrack);
+observeBar(readYoutubeMusic, (track) => {
+  postTrack(track);
+  setTrack(track);
+});
+
+initFloater();
