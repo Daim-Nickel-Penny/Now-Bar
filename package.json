@@ -1,0 +1,29 @@
+{
+  "name": "now-bar",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "node esbuild.mjs",
+    "watch": "node esbuild.mjs --watch",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint src",
+    "prepare": "husky"
+  },
+  "dependencies": {
+    "@fontsource/poppins": "^5.3.0",
+    "asciify-engine": "^1.0.118"
+  },
+  "devDependencies": {
+    "@commitlint/cli": "^21.2.2",
+    "@commitlint/config-conventional": "^21.2.2",
+    "@eslint/js": "^10.0.1",
+    "@types/chrome": "^0.2.8",
+    "esbuild": "^0.28.2",
+    "eslint": "^10.10.0",
+    "husky": "^9.1.7",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.69.0",
+    "vitest": "^5.0.0"
+  }
+}
