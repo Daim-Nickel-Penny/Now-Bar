@@ -5,7 +5,19 @@ let pipWindow: Window | null = null;
 let scenes: ReturnType<typeof createSceneLoop> | null = null;
 let currentTrack: Track | null = null;
 
+const RESIZE_OBSERVER_MSG = "ResizeObserver loop";
+
+function isResizeObserverError(event: ErrorEvent): boolean {
+  return event.message.includes(RESIZE_OBSERVER_MSG);
+}
+
 export function initFloater(): void {
+  window.addEventListener("error", (event) => {
+    if (isResizeObserverError(event)) {
+      event.preventDefault();
+      event.stopImmediatePropagation();
+    }
+  });
   const button = createTriggerButton();
   document.body.appendChild(button);
   button.addEventListener("click", openFloater, { once: false });
@@ -63,6 +75,12 @@ async function openFloater(): Promise<void> {
 }
 
 function buildFloaterUI(pip: Window): void {
+  pip.addEventListener("error", (event) => {
+    if (isResizeObserverError(event)) {
+      event.preventDefault();
+      event.stopImmediatePropagation();
+    }
+  });
   const doc = pip.document;
   doc.head.replaceChildren();
   doc.body.replaceChildren();
