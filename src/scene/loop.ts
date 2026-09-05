@@ -98,11 +98,25 @@ async function driveVideo(
 
   const stream = source.captureStream(18);
   video.srcObject = stream;
-  await video.play().catch(() => undefined);
-  const stopAscii = await asciifyVideo(video, ascii, {
-    fitTo: mount,
-    options: QUALITY,
-  }).catch(() => undefined);
+
+  try {
+    await video.play();
+  } catch {
+    // Video play may fail in PiP context, continue anyway
+  }
+
+  let stopAscii: (() => void) | undefined;
+  try {
+    stopAscii = await asciifyVideo(video, ascii, {
+      fitTo: mount,
+      options: QUALITY,
+    });
+  } catch {
+    // asciifyVideo may fail, fall back to raw canvas
+    mount.replaceChildren(source);
+    source.style.width = "100%";
+    source.style.height = "100%";
+  }
 
   return () => {
     cancelAnimationFrame(frame);
