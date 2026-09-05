@@ -1,4 +1,4 @@
-import { ICON_PATHS, type IconName } from "./icons.ts";
+import { createIcon, type IconName } from "./paint-icon.ts";
 import type { ShellVariant } from "./shell-variant.ts";
 
 export type FloaterShell = {
@@ -12,52 +12,20 @@ export type FloaterShell = {
   prev: HTMLButtonElement;
   play: HTMLButtonElement;
   next: HTMLButtonElement;
+  mute: HTMLButtonElement;
+  level: HTMLInputElement;
   skipScene: HTMLButtonElement;
   collapse: HTMLButtonElement;
   close: HTMLButtonElement;
   expand: HTMLButtonElement;
 };
 
-const SVG_NS = "http://www.w3.org/2000/svg";
-
-/** Hugeicons glyphs are one to four stroked paths, so the count changes with the icon. */
-function paintIcon(svg: SVGSVGElement, name: IconName): void {
-  const doc = svg.ownerDocument;
-  const paths = ICON_PATHS[name];
-  while (svg.childNodes.length > paths.length) {
-    svg.lastChild?.remove();
-  }
-  for (const [i, d] of paths.entries()) {
-    let node = svg.childNodes[i] as SVGPathElement | undefined;
-    if (node === undefined) {
-      node = doc.createElementNS(SVG_NS, "path");
-      svg.appendChild(node);
-    }
-    node.setAttribute("d", d);
-  }
-}
-
-function icon(doc: Document, name: IconName): SVGSVGElement {
-  const svg = doc.createElementNS(SVG_NS, "svg");
-  svg.setAttribute("viewBox", "0 0 24 24");
-  svg.setAttribute("aria-hidden", "true");
-  paintIcon(svg, name);
-  return svg;
-}
-
-export function setIcon(button: HTMLButtonElement, name: IconName): void {
-  const svg = button.querySelector("svg");
-  if (svg !== null) {
-    paintIcon(svg, name);
-  }
-}
-
 function iconButton(doc: Document, name: IconName, label: string, className: string): HTMLButtonElement {
   const button = doc.createElement("button");
   button.type = "button";
   button.className = `icon-button ${className}`;
   button.setAttribute("aria-label", label);
-  button.appendChild(icon(doc, name));
+  button.appendChild(createIcon(doc, name));
   return button;
 }
 
@@ -103,7 +71,17 @@ export function buildFloaterShell(doc: Document, variant: ShellVariant): Floater
   const prev = iconButton(doc, "previous", "Previous", "prev");
   const play = iconButton(doc, "play", "Play", "play");
   const next = iconButton(doc, "next", "Next", "next");
-  transport.append(prev, play, next);
+  const mute = iconButton(doc, "volumeHigh", "Mute", "mute");
+  const level = element(doc, "input", "level-slider");
+  level.type = "range";
+  level.min = "0";
+  level.max = "1";
+  level.step = "0.05";
+  level.value = "1";
+  level.setAttribute("aria-label", "Volume");
+  const volume = element(doc, "div", "level");
+  volume.append(mute, level);
+  transport.append(prev, play, next, volume);
   card.append(art, meta, transport);
 
   const expand = element(doc, "button", "expand");
@@ -127,6 +105,8 @@ export function buildFloaterShell(doc: Document, variant: ShellVariant): Floater
     prev,
     play,
     next,
+    mute,
+    level,
     skipScene,
     collapse,
     close,

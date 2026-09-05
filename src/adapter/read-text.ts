@@ -1,3 +1,5 @@
+import { pageMedia } from "./page-media.ts";
+
 export function readText(root: ParentNode, selectors: readonly string[]): string {
   for (const selector of selectors) {
     const node = root.querySelector(selector);
@@ -20,10 +22,6 @@ export function readImageSrc(root: ParentNode, selectors: readonly string[]): st
   return null;
 }
 
-function mediaElements(root: ParentNode): HTMLMediaElement[] {
-  return [...root.querySelectorAll<HTMLMediaElement>("video, audio")];
-}
-
 function anyMediaPlaying(media: readonly HTMLMediaElement[]): boolean {
   return media.some((node) => !node.paused && !node.ended && node.readyState > 2);
 }
@@ -34,7 +32,7 @@ function anyMediaPlaying(media: readonly HTMLMediaElement[]): boolean {
  * when the button label is worth consulting.
  */
 export function isPlaying(root: ParentNode, playPause: readonly string[]): boolean {
-  const media = mediaElements(root);
+  const media = pageMedia(root);
   if (media.length > 0) {
     return anyMediaPlaying(media) || buttonSaysPause(root, playPause);
   }

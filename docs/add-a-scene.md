@@ -6,7 +6,7 @@ Read this when you add a Scene. File names use the words in [CONTEXT.md](../CONT
 
 ## How a frame is painted
 
-Every frame in `src/scene/loop.ts` does this, in order:
+Every frame in `src/scene/paint-scene.ts` does this, in order:
 
 1. Fill a small offscreen canvas with black.
 2. Call `scenery.draw(ctx, width, height, phase)`.
@@ -22,7 +22,7 @@ big, bright shapes survive.
 
 `phase` is `(elapsed % loopMs) / loopMs`, so it runs `0 … 1` and wraps. Motion that is a function of `phase` with **integer** cycle counts meets itself at the wrap. That is a seamless loop.
 
-The loop holds one Scene for about 40 seconds (rounded up to a whole number of `loopMs`), fades 400 ms, then advances. The grid button skips early.
+When Preferences say the ScenePlaylist cycles, the loop holds one Scene for about 40 seconds (rounded up to a whole number of `loopMs`), fades 400 ms, then advances. The scene button skips early and shows that Scene's Hugeicon. With cycling off, the Floater holds until the user skips.
 
 ## Add one
 
@@ -84,7 +84,11 @@ In [`src/scene/scenery/by-scene.ts`](../src/scene/scenery/by-scene.ts): import t
 
 `sceneryFor` must stay exhaustive. If a `SceneId` is missing, the project will not typecheck.
 
-### 5. New Activity, only if you need one
+### 5. Hugeicon
+
+Add a path-only export from `@hugeicons/core-free-icons` to `PICK` in [`scripts/build-icons.mjs`](../scripts/build-icons.mjs), map the Scene id to that slot in [`src/owner/scene-icon.ts`](../src/owner/scene-icon.ts), then run `node scripts/build-icons.mjs`. The Panel chip and the Floater scene button both read that map. Do not import the package at runtime.
+
+### 6. New Activity, only if you need one
 
 Reuse an existing Activity unless the Axolotl must hold something new.
 
@@ -129,7 +133,8 @@ own pixels, about 40% of the Floater's width. Leave that much clear. Existing st
 - [ ] `playlist.ts` has the matching row
 - [ ] `src/scene/scenery/<id>.ts` exports a `Scenery`
 - [ ] `by-scene.ts` registers it
+- [ ] `scene-icon.ts` and `build-icons.mjs` have the matching Hugeicon
 - [ ] New Activity, if any, is handled in `drawProps` (and bob/eyes if needed)
 - [ ] `npm run typecheck` passes
 - [ ] `npm test` passes
-- [ ] Build, reload the extension, open the Floater: the Panel shows the chip, the grid button can land on the Scene, the Axolotl stands on the floor, the motion meets itself when the cycle wraps
+- [ ] Build, reload the extension, open the Floater: the Panel shows the chip with its Hugeicon, the scene button can land on the Scene, the Axolotl stands on the floor, the motion meets itself when the cycle wraps

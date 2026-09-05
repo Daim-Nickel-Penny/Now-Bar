@@ -1,7 +1,9 @@
 import { parseNowPlayingReply, type NowPlayingReply, type PanelMail } from "../mail/message.ts";
-import { attachPlayingBars } from "../owner/playing-bars.ts";
-import { isShellVariant } from "../owner/shell-variant.ts";
 import { SESSION_SOURCE_KEY } from "../mailbox/session-now-playing.ts";
+import { createIcon } from "../owner/paint-icon.ts";
+import { attachPlayingBars } from "../owner/playing-bars.ts";
+import { iconForScene } from "../owner/scene-icon.ts";
+import { isShellVariant } from "../owner/shell-variant.ts";
 import {
   DEFAULT_PREFERENCES,
   isAsciiStyle,
@@ -30,6 +32,8 @@ const openButton = must<HTMLButtonElement>("#open");
 const hint = must<HTMLElement>("#hint");
 const links = must<HTMLElement>("#links");
 const openOnPlay = must<HTMLInputElement>("#open-on-play");
+const cycleScenes = must<HTMLInputElement>("#cycle-scenes");
+const cycleLabel = must<HTMLElement>("#cycle-label");
 const sceneChips = must<HTMLElement>("#scenes");
 
 const SOURCE_NAME = { youtubeMusic: "YouTube Music", spotifyWeb: "Spotify" } as const;
@@ -107,11 +111,13 @@ function readForm(current: Preferences): Preferences {
     asciiStyle: isAsciiStyle(style) ? style : current.asciiStyle,
     variant: isShellVariant(variant) ? variant : current.variant,
     activeScenes: scenes.length === 0 ? current.activeScenes : scenes,
+    cycleScenes: cycleScenes.checked,
   };
 }
 
 function paintForm(preferences: Preferences): void {
   openOnPlay.checked = preferences.openOnPlay;
+  cycleScenes.checked = preferences.cycleScenes;
   for (const input of document.querySelectorAll<HTMLInputElement>("input[type='radio']")) {
     input.checked =
       (input.name === "ascii-style" && input.value === preferences.asciiStyle) ||
@@ -129,13 +135,14 @@ function buildSceneChips(): void {
     input.type = "checkbox";
     input.value = scene.id;
     const text = document.createElement("span");
-    text.textContent = scene.name;
+    text.append(createIcon(document, iconForScene(scene.id)), document.createTextNode(scene.name));
     label.append(input, text);
     sceneChips.appendChild(label);
   }
 }
 
 async function main(): Promise<void> {
+  cycleLabel.prepend(createIcon(document, "cycle"));
   buildSceneChips();
   let preferences = await readPreferences().catch(() => DEFAULT_PREFERENCES);
   paintForm(preferences);

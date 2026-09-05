@@ -13,7 +13,7 @@ import { fileURLToPath } from "node:url";
 const PACKAGE = "@hugeicons/core-free-icons";
 const VERSION = "4.3.0";
 
-/** Floater button -> Hugeicons export name. */
+/** UI slot -> Hugeicons export name. Paths are inlined; the package never ships. */
 const PICK = {
   previous: "PreviousIcon",
   play: "PlayIcon",
@@ -22,6 +22,16 @@ const PICK = {
   scene: "DashboardSquare01Icon",
   collapse: "MinusSignIcon",
   close: "Cancel01Icon",
+  hearth: "FirePitIcon",
+  rain: "CloudAngledRainIcon",
+  disco: "SparklesIcon",
+  night: "Moon02Icon",
+  arcade: "GameController01Icon",
+  kitchen: "KitchenUtensilsIcon",
+  cycle: "RefreshIcon",
+  volumeHigh: "VolumeHighIcon",
+  volumeLow: "VolumeLowIcon",
+  mute: "VolumeOffIcon",
 };
 
 const icons = await import(PACKAGE);

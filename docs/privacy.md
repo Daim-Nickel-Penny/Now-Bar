@@ -2,7 +2,7 @@
 
 ## What it can see
 
-The extension reads the player bar on `https://music.youtube.com/*` and `https://open.spotify.com/*` only: title, artist, album, artwork URL, and whether something is playing.
+The extension reads the player bar on `https://music.youtube.com/*` and `https://open.spotify.com/*` only: title, artist, album, artwork URL, and whether something is playing. It also reads `volume` and `muted` on that tab's own `video` / `audio` elements so the Floater can show Level.
 
 ## Why it asks for those two hosts
 
@@ -26,7 +26,14 @@ Other tabs, cookies, history, accounts, native Spotify or YouTube apps, and any 
 that tab's player bar still parses, and drops a tab's entry as soon as it closes or stops answering. It is gone when the Chrome session ends.
 
 `chrome.storage.local` holds Preferences and the size the Floater window was last left at. Neither
-one ever holds Track text.
+one ever holds Track text. Level is not stored.
+
+## What it can press
+
+On those two music origins only, in the isolated world: the page's previous, play/pause, next, and
+mute buttons, and `HTMLMediaElement.volume` / `.muted` on that document's `video` / `audio` nodes.
+It does not write the page's form fields, does not dispatch `input` / `change` on the site's slider,
+and does not inject MAIN-world script.
 
 ## What it sends
 
@@ -34,4 +41,4 @@ Nothing. No analytics, crash reports, font CDNs, artwork proxies, or update ping
 
 ## Mail
 
-Every `runtime.onMessage` is treated as untrusted. Unknown types are dropped. The sender must be one of the two music origins or an extension page. Content scripts cannot open tabs or start downloads.
+Every `runtime.onMessage` is treated as untrusted. Unknown types are dropped. The sender must be one of the two music origins or an extension page. Content scripts cannot open tabs or start downloads. There is no Mail type for Level — volume cannot be set from the Panel or the service worker.

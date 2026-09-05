@@ -11,8 +11,11 @@ import {
   requestFloaterWindow,
   resizeFloater,
 } from "./floater-window.ts";
+import { paintLevel } from "./paint-level.ts";
+import { setIcon } from "./paint-icon.ts";
 import { paintNowPlaying } from "./paint-now-playing.ts";
 import { attachPlayingBars, type PlayingBars } from "./playing-bars.ts";
+import { iconForScene } from "./scene-icon.ts";
 import { nextVariant, variantSize, type ShellSize, type ShellVariant } from "./shell-variant.ts";
 
 export type FloaterOwner = {
@@ -77,6 +80,11 @@ export function createFloaterOwner(
       style: preferences.asciiStyle,
       active: preferences.activeScenes,
       reducedMotion: pip.matchMedia("(prefers-reduced-motion: reduce)").matches,
+      cycle: preferences.cycleScenes,
+      onScene: (scene) => {
+        setIcon(shell.skipScene, iconForScene(scene.id));
+        shell.skipScene.setAttribute("aria-label", `Next scene (${scene.name})`);
+      },
     });
     const bars = attachPlayingBars(shell.bars);
     const next: Live = { pip, shell, scenes, variant: preferences.variant, bars };
@@ -112,6 +120,7 @@ export function createFloaterOwner(
       }
     });
     paintNowPlaying(shell, track);
+    paintLevel(shell, controls.level());
     bars.setPlaying(track?.playing === true);
     if (preferences.variant === "expanded") {
       scenes.start();
@@ -147,12 +156,17 @@ export function createFloaterOwner(
       track = next;
       if (live !== null) {
         paintNowPlaying(live.shell, track);
+        paintLevel(live.shell, controls.level());
         live.bars.setPlaying(track?.playing === true);
       }
     },
     setPreferences(next) {
       preferences = next;
-      live?.scenes.update({ style: next.asciiStyle, active: next.activeScenes });
+      live?.scenes.update({
+        style: next.asciiStyle,
+        active: next.activeScenes,
+        cycle: next.cycleScenes,
+      });
     },
   };
 }

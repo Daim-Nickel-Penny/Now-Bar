@@ -49,5 +49,6 @@ void startAdapter({
     playPause: PLAY_PAUSE,
     previous: ["ytmusic-player-bar .previous-button", ".previous-button"],
     next: ["ytmusic-player-bar .next-button", ".next-button"],
+    mute: ["ytmusic-player-bar #mute-button", "#mute-button"],
   },
 });

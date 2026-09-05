@@ -1,5 +1,6 @@
 import type { Track } from "../track/track.ts";
-import { setIcon, type FloaterShell } from "./floater-shell.ts";
+import type { FloaterShell } from "./floater-shell.ts";
+import { setIcon } from "./paint-icon.ts";
 
 const SOURCE_NAME = { youtubeMusic: "YouTube Music", spotifyWeb: "Spotify" } as const;
 

@@ -7,6 +7,7 @@ export type Preferences = {
   openOnPlay: boolean;
   asciiStyle: AsciiStyle;
   activeScenes: readonly SceneId[];
+  cycleScenes: boolean;
   variant: ShellVariant;
 };
 
@@ -14,6 +15,7 @@ export const DEFAULT_PREFERENCES: Preferences = {
   openOnPlay: true,
   asciiStyle: "dots",
   activeScenes: SCENE_IDS,
+  cycleScenes: true,
   variant: "expanded",
 };
 
@@ -29,6 +31,8 @@ export function sanitizePreferences(input: unknown): Preferences {
       typeof raw.openOnPlay === "boolean" ? raw.openOnPlay : DEFAULT_PREFERENCES.openOnPlay,
     asciiStyle: isAsciiStyle(raw.asciiStyle) ? raw.asciiStyle : DEFAULT_PREFERENCES.asciiStyle,
     activeScenes: sanitizeScenes(raw.activeScenes),
+    cycleScenes:
+      typeof raw.cycleScenes === "boolean" ? raw.cycleScenes : DEFAULT_PREFERENCES.cycleScenes,
     variant: isShellVariant(raw.variant) ? raw.variant : DEFAULT_PREFERENCES.variant,
   };
 }

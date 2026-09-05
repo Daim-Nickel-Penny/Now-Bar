@@ -22,3 +22,4 @@ Why, not how.
 - [0003](./adr/0003-asciify-video-loops.md) — Scenes drawn per frame through asciify-engine
 - [0004](./adr/0004-no-telemetry.md) — now-playing never leaves the machine
 - [0005](./adr/0005-preferences-local.md) — Preferences in `storage.local`, never a Track
+- [0006](./adr/0006-level-is-media-volume.md) — Level is media.volume, never a page form write

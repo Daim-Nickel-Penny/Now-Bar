@@ -26,8 +26,12 @@ The content script for one Source. It reads the player bar, drives the Source's 
 _Avoid_: scraper, injector, bridge
 
 **SourceControls**:
-The three page buttons an Adapter can press for the Floater: previous, play/pause, next.
+What the Adapter may drive on the Source page from the Floater: previous, play/pause, next, mute, and Level. Mute is a click on the page mute button. Level is the tab's own media volume, never a form write.
 _Avoid_: media keys, transport, remote
+
+**Level**:
+How loud the Source tab is, a finite 0–1. The Floater slider and arrow keys set it. Never stored. Never part of a Track or Mail.
+_Avoid_: volume, gain, mixer, audio
 
 **Artwork**:
 The cover image URL on a Track, allowed only from a Source CDN hostname.
@@ -50,7 +54,7 @@ The small in-page button the Adapter shows when the Floater is closed and cannot
 _Avoid_: FAB, launcher, badge
 
 **Preferences**:
-What the user chose in the Panel: open on play, ASCII style, active Scenes, default ShellVariant. Lives in `chrome.storage.local`. Never holds Track text.
+What the user chose in the Panel: open on play, ASCII style, active Scenes, whether the ScenePlaylist cycles, default ShellVariant. Lives in `chrome.storage.local`. Never holds Track text.
 _Avoid_: settings, config, options
 
 **ShellVariant**:

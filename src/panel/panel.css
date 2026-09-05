@@ -220,6 +220,19 @@ h1 {
   gap: 8px;
 }
 
+.with-icon {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.with-icon svg,
+.chips svg {
+  width: 13px;
+  height: 13px;
+  flex: 0 0 auto;
+}
+
 .switch {
   appearance: none;
   width: 36px;
@@ -300,7 +313,9 @@ h1 {
 }
 
 .chips span {
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
   padding: 5px 10px;
   border-radius: 999px;
   border: 1px solid var(--stroke);

@@ -52,5 +52,6 @@ void startAdapter({
     playPause: PLAY_PAUSE,
     previous: ["[data-testid='control-button-skip-back']"],
     next: ["[data-testid='control-button-skip-forward']"],
+    mute: ["[data-testid='volume-bar-toggle-mute-button']"],
   },
 });

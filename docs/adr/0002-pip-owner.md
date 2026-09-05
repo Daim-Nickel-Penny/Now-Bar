@@ -18,6 +18,8 @@ The Panel never opens the Floater itself. Its Open button sends `openFloater` to
 
 The Floater document is `about:blank` under the Source origin, so the Source CSP applies. Styles go in through `adoptedStyleSheets`, never inline `<style>`. No web fonts; the shell uses the system UI stack.
 
+Because that document is same-origin with the Source, page script can see the Floater DOM. Clicks and slider values are treated as untrusted: Level is clamped, and SourceControls never writes page form fields.
+
 ## Consequences
 
-Closing or navigating the Source tab closes the Floater. Native Spotify and YouTube desktop apps are out of scope. Document PiP is always-on-top on desktop Chrome 116+.
+Closing or navigating the Source tab closes the Floater. Native Spotify and YouTube desktop apps are out of scope. Document PiP is always-on-top on desktop Chrome 116+. The Source page can poke the Floater; it cannot widen Level past 0–1 or send Mail the parsers do not name.

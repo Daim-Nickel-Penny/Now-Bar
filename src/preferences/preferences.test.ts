@@ -28,7 +28,20 @@ describe("sanitizePreferences", () => {
         asciiStyle: "glyphs",
         variant: "pill",
         activeScenes: ["rain"],
+        cycleScenes: false,
       }),
-    ).toEqual({ openOnPlay: false, asciiStyle: "glyphs", variant: "pill", activeScenes: ["rain"] });
+    ).toEqual({
+      openOnPlay: false,
+      asciiStyle: "glyphs",
+      variant: "pill",
+      activeScenes: ["rain"],
+      cycleScenes: false,
+    });
+  });
+
+  it("treats a non-boolean cycle flag as the default, never a coerced truthy", () => {
+    expect(sanitizePreferences({ cycleScenes: "true" }).cycleScenes).toBe(true);
+    expect(sanitizePreferences({ cycleScenes: 0 }).cycleScenes).toBe(true);
+    expect(sanitizePreferences({ cycleScenes: false }).cycleScenes).toBe(false);
   });
 });
