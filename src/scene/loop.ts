@@ -32,7 +32,11 @@ export function createSceneLoop(mount: HTMLElement): SceneLoop {
     if (!running) {
       return;
     }
-    stopCurrent = next.kind === "plate" ? await playPlate(mount, next) : await playField(mount, next);
+    try {
+      stopCurrent = next.kind === "plate" ? await playPlate(mount, next) : await playField(mount, next);
+    } catch {
+      stopCurrent = undefined;
+    }
     window.clearTimeout(timer);
     timer = window.setTimeout(() => {
       void play(nextScene(next.id));
@@ -113,17 +117,15 @@ async function driveVideo(
 
   const stream = source.captureStream(18);
   video.srcObject = stream;
-  await video.play();
+  await video.play().catch(() => undefined);
   const stopAscii = await asciifyVideo(video, ascii, {
     fitTo: mount,
     options: QUALITY,
-  });
+  }).catch(() => undefined);
 
   return () => {
     cancelAnimationFrame(frame);
-    if (typeof stopAscii === "function") {
-      stopAscii();
-    }
+    stopAscii?.();
     for (const track of stream.getTracks()) {
       track.stop();
     }
