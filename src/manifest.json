@@ -4,7 +4,14 @@
   "version": "0.2.0",
   "description": "Always-on-top now-playing floater for YouTube Music and Spotify Web, with a dotted ASCII axolotl scene. Nothing leaves your machine.",
   "minimum_chrome_version": "116",
-  "permissions": ["storage"],
+  "permissions": [
+    "storage",
+    "scripting"
+  ],
+  "host_permissions": [
+    "https://music.youtube.com/*",
+    "https://open.spotify.com/*"
+  ],
   "background": {
     "service_worker": "mailbox/service-worker.js"
   },
@@ -20,22 +27,35 @@
   },
   "content_scripts": [
     {
-      "matches": ["https://music.youtube.com/*"],
-      "js": ["adapter/youtube-music.js"],
+      "matches": [
+        "https://music.youtube.com/*"
+      ],
+      "js": [
+        "adapter/youtube-music.js"
+      ],
       "run_at": "document_idle",
       "world": "ISOLATED"
     },
     {
-      "matches": ["https://open.spotify.com/*"],
-      "js": ["adapter/spotify-web.js"],
+      "matches": [
+        "https://open.spotify.com/*"
+      ],
+      "js": [
+        "adapter/spotify-web.js"
+      ],
       "run_at": "document_idle",
       "world": "ISOLATED"
     }
   ],
   "web_accessible_resources": [
     {
-      "resources": ["icons/icon-48.png"],
-      "matches": ["https://music.youtube.com/*", "https://open.spotify.com/*"]
+      "resources": [
+        "icons/icon-48.png"
+      ],
+      "matches": [
+        "https://music.youtube.com/*",
+        "https://open.spotify.com/*"
+      ]
     }
   ],
   "icons": {

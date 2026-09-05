@@ -8,6 +8,11 @@ A local now-playing snapshot from a music tab, shown in a floating glass shell o
 The latest validated track the service worker is holding for the Panel.
 _Avoid_: current song, media info, metadata
 
+**Reading**:
+What one look at the player bar produced: a Track, silence, or unreadable. Unreadable means the bar
+is on the page but its fields no longer parse, which is the Source changing its markup.
+_Avoid_: parse result, scrape, state
+
 **Track**:
 A sanitized snapshot of title, artist, album, artwork, source, and whether it is playing.
 _Avoid_: song, metadata, MediaMetadata

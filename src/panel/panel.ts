@@ -1,6 +1,8 @@
 import { parseNowPlayingReply, type NowPlayingReply, type PanelMail } from "../mail/message.ts";
 import { isShellVariant } from "../owner/shell-variant.ts";
+import { SESSION_SOURCE_KEY } from "../mailbox/session-now-playing.ts";
 import {
+  DEFAULT_PREFERENCES,
   isAsciiStyle,
   readPreferences,
   writePreferences,
@@ -8,7 +10,6 @@ import {
 } from "../preferences/preferences.ts";
 import { allScenes } from "../scene/playlist.ts";
 import { isSceneId, type SceneId } from "../scene/scene-id.ts";
-import type { Track } from "../track/track.ts";
 
 function must<T extends Element>(selector: string): T {
   const node = document.querySelector<T>(selector);
@@ -31,12 +32,32 @@ const sceneChips = must<HTMLElement>("#scenes");
 
 const SOURCE_NAME = { youtubeMusic: "YouTube Music", spotifyWeb: "Spotify" } as const;
 
-function paintTrack(track: Track | null, connected: boolean): void {
-  status.dataset.state = connected ? "connected" : "idle";
-  status.textContent = track ? SOURCE_NAME[track.source] : connected ? "Music tab ready" : "Open a music tab";
+function paintTrack(reply: NowPlayingReply | null): void {
+  const connected = reply?.connected ?? false;
+  const track = reply?.track ?? null;
+  /**
+   * A Source tab whose player bar no longer parses is a broken extension, not silence. Saying so
+   * is the difference between "my music stopped" and "Now Bar needs updating for this layout".
+   */
+  const rotted = connected && reply?.readable === false;
+  const playing = track?.playing === true;
+  status.dataset.state = rotted ? "stuck" : playing ? "playing" : connected ? "connected" : "idle";
+  status.textContent = rotted
+    ? "Can't read this page"
+    : track
+      ? SOURCE_NAME[track.source]
+      : connected
+        ? "Music tab ready"
+        : "Open a music tab";
   openButton.disabled = !connected;
   links.hidden = connected;
-  bars.dataset.playing = track?.playing === true ? "true" : "false";
+  bars.dataset.playing = playing ? "true" : "false";
+  if (rotted) {
+    title.textContent = "Can't read the player";
+    artist.textContent = "The site changed its layout. Now Bar needs an update.";
+    art.removeAttribute("src");
+    return;
+  }
   if (track === null) {
     title.textContent = "Nothing playing";
     artist.textContent = connected ? "Press play in the music tab" : "Press play on YouTube Music or Spotify";
@@ -44,7 +65,8 @@ function paintTrack(track: Track | null, connected: boolean): void {
     return;
   }
   title.textContent = track.title;
-  artist.textContent = track.artist;
+  title.title = track.title;
+  artist.textContent = track.artist === "" ? SOURCE_NAME[track.source] : track.artist;
   if (track.artworkUrl === null) {
     art.removeAttribute("src");
   } else if (art.getAttribute("src") !== track.artworkUrl) {
@@ -61,8 +83,7 @@ async function send(mail: PanelMail): Promise<NowPlayingReply | null> {
 }
 
 async function refreshTrack(): Promise<void> {
-  const reply = await send({ type: "requestTrack" });
-  paintTrack(reply?.track ?? null, reply?.connected ?? false);
+  paintTrack(await send({ type: "requestTrack" }));
 }
 
 function radio(name: string): HTMLInputElement | null {
@@ -113,7 +134,7 @@ function buildSceneChips(): void {
 
 async function main(): Promise<void> {
   buildSceneChips();
-  let preferences = await readPreferences();
+  let preferences = await readPreferences().catch(() => DEFAULT_PREFERENCES);
   paintForm(preferences);
 
   document.addEventListener("change", () => {
@@ -134,7 +155,7 @@ async function main(): Promise<void> {
   }
 
   chrome.storage.session.onChanged.addListener((changes) => {
-    if ("nowPlaying" in changes || "sourceTabId" in changes) {
+    if (SESSION_SOURCE_KEY in changes) {
       void refreshTrack();
     }
   });

@@ -1,44 +1,59 @@
-import type { Track } from "../track/track.ts";
+import { SILENT, readingKey, type Reading } from "./reading.ts";
 
 const COALESCE_MS = 150;
+/**
+ * YouTube Music and Spotify tear the player bar out of the DOM for a moment while they move between
+ * pages, and a half-rendered bar reads as unreadable. Reporting either straight away makes the Panel
+ * flash on every navigation, so anything that is not a Track has to hold before it is believed.
+ */
+const SETTLE_MS = 1200;
 
-function snapshotKey(track: Track | null): string {
-  if (track === null) {
-    return "";
-  }
-  return [
-    track.source,
-    track.title,
-    track.artist,
-    track.album ?? "",
-    track.artworkUrl ?? "",
-    track.playing ? "1" : "0",
-  ].join("\u001f");
-}
+export type BarWatch = { stop: () => void; current: () => Reading; resend: () => void };
 
 /**
- * Watches the page for changes and emits a Track whenever the bar's snapshot
- * differs from the last one. Uses a timer, not requestAnimationFrame, so it
- * keeps working while the music tab is hidden behind the Floater.
+ * Watches the page and emits whenever the bar's reading changes. Uses timers, not
+ * requestAnimationFrame, so it keeps working while the music tab is hidden behind the Floater.
  */
-export function observeBar(read: () => Track | null, emit: (track: Track | null) => void): () => void {
-  let last = snapshotKey(null);
+export function observeBar(read: () => Reading, emit: (reading: Reading) => void): BarWatch {
+  let last = readingKey(SILENT);
+  let held: Reading = SILENT;
   let timer = 0;
+  let settleTimer = 0;
 
-  function publish(): void {
-    timer = 0;
-    const next = read();
-    const key = snapshotKey(next);
+  function publish(next: Reading): void {
+    const key = readingKey(next);
     if (key === last) {
       return;
     }
     last = key;
+    held = next;
     emit(next);
+  }
+
+  function sample(): void {
+    timer = 0;
+    const next = read();
+    if (next.kind === "track") {
+      window.clearTimeout(settleTimer);
+      settleTimer = 0;
+      publish(next);
+      return;
+    }
+    if (settleTimer !== 0) {
+      return;
+    }
+    settleTimer = window.setTimeout(() => {
+      settleTimer = 0;
+      const settled = read();
+      if (settled.kind !== "track") {
+        publish(settled);
+      }
+    }, SETTLE_MS);
   }
 
   function schedule(): void {
     if (timer === 0) {
-      timer = window.setTimeout(publish, COALESCE_MS);
+      timer = window.setTimeout(sample, COALESCE_MS);
     }
   }
 
@@ -51,13 +66,13 @@ export function observeBar(read: () => Track | null, emit: (track: Track | null)
   });
   schedule();
 
-  return () => {
-    observer.disconnect();
-    window.clearTimeout(timer);
+  return {
+    current: () => held,
+    resend: () => emit(held),
+    stop() {
+      observer.disconnect();
+      window.clearTimeout(timer);
+      window.clearTimeout(settleTimer);
+    },
   };
-}
-
-export function postTrack(track: Track | null): void {
-  const mail = track === null ? { type: "idle" } : { type: "track", track };
-  chrome.runtime.sendMessage(mail).catch(() => undefined);
 }

@@ -4,9 +4,15 @@ import { createSceneLoop, type SceneLoop } from "../scene/loop.ts";
 import type { Track } from "../track/track.ts";
 import { bindFloaterControls } from "./floater-controls.ts";
 import { buildFloaterShell, type FloaterShell } from "./floater-shell.ts";
-import { canOpenFloater, requestFloaterWindow, resizeFloater } from "./floater-window.ts";
+import {
+  canOpenFloater,
+  readRememberedSize,
+  rememberSize,
+  requestFloaterWindow,
+  resizeFloater,
+} from "./floater-window.ts";
 import { paintNowPlaying } from "./paint-now-playing.ts";
-import { nextVariant, variantSize, type ShellVariant } from "./shell-variant.ts";
+import { nextVariant, variantSize, type ShellSize, type ShellVariant } from "./shell-variant.ts";
 
 export type FloaterOwner = {
   open: () => Promise<boolean>;
@@ -18,6 +24,8 @@ export type FloaterOwner = {
 
 type Live = { pip: Window; shell: FloaterShell; scenes: SceneLoop; variant: ShellVariant };
 
+const RESIZE_SETTLE_MS = 500;
+
 export function createFloaterOwner(
   view: Window,
   controls: SourceControls,
@@ -27,7 +35,20 @@ export function createFloaterOwner(
   let track: Track | null = null;
   let live: Live | null = null;
   let opening = false;
+  /**
+   * Only the card variant is user-sizeable; the pill and icon are fixed shapes. Loaded up front,
+   * never awaited inside `open`: `requestWindow` has to be reached while the click is still the
+   * current user activation, and any await before it spends that gesture.
+   */
+  let expandedSize: ShellSize | null = null;
+  void readRememberedSize().then((size) => {
+    expandedSize ??= size;
+  });
   const closeListeners: Array<() => void> = [];
+
+  function sizeFor(variant: ShellVariant): ShellSize {
+    return variant === "expanded" ? (expandedSize ?? variantSize(variant)) : variantSize(variant);
+  }
 
   function applyVariant(next: ShellVariant): void {
     if (live === null) {
@@ -40,7 +61,7 @@ export function createFloaterOwner(
     } else {
       live.scenes.stop();
     }
-    resizeFloater(live.pip, variantSize(next));
+    resizeFloater(live.pip, sizeFor(next));
   }
 
   function mount(pip: Window): Live {
@@ -57,7 +78,24 @@ export function createFloaterOwner(
       close: () => pip.close(),
       setVariant: (target) => applyVariant(target === "cycle" ? nextVariant(next.variant) : target),
     });
+    /** Dragging the window is the user setting a size; keep it for the next time it opens. */
+    let settle = 0;
+    pip.addEventListener("resize", () => {
+      if (next.variant !== "expanded") {
+        return;
+      }
+      pip.clearTimeout(settle);
+      settle = pip.setTimeout(() => {
+        const size = { width: pip.innerWidth, height: pip.innerHeight };
+        if (size.width > 0 && size.height > 0) {
+          expandedSize = size;
+          rememberSize(size);
+        }
+      }, RESIZE_SETTLE_MS);
+    });
+
     pip.addEventListener("pagehide", () => {
+      pip.clearTimeout(settle);
       scenes.dispose();
       live = null;
       for (const listener of closeListeners) {
@@ -86,7 +124,7 @@ export function createFloaterOwner(
       }
       opening = true;
       try {
-        const pip = await requestFloaterWindow(view, variantSize(preferences.variant));
+        const pip = await requestFloaterWindow(view, sizeFor(preferences.variant));
         live = mount(pip);
         return true;
       } catch {

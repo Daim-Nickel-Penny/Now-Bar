@@ -1,26 +1,49 @@
-import { buttonSaysPause, mediaPlaying, readImageSrc, readText } from "./read-text.ts";
+import { isPlaying, readImageSrc, readText } from "./read-text.ts";
+import { SILENT, parsed, type Reading } from "./reading.ts";
 import { startAdapter } from "./start-adapter.ts";
 import { sanitizeTrack } from "../track/sanitize-track.ts";
-import type { Track } from "../track/track.ts";
 
-const PLAY_PAUSE = ["[data-testid='control-button-playpause']"];
+const BAR = ["[data-testid='now-playing-widget']", "footer [data-testid='now-playing-bar']", "footer"];
+const PLAY_PAUSE = [
+  "[data-testid='control-button-playpause']",
+  "button[data-testid='control-button-playpause']",
+];
+const TITLE = [
+  "[data-testid='context-item-info-title']",
+  "[data-testid='context-item-link']",
+  "[data-testid='nowplaying-track-link']",
+];
+const ARTIST = [
+  "[data-testid='context-item-info-subtitles']",
+  "[data-testid='context-item-info-artist']",
+];
+const ART = ["[data-testid='cover-art-image']", "img[data-testid='cover-art-image']", "img"];
 
-function readSpotifyWeb(): Track | null {
-  const bar = document.querySelector("[data-testid='now-playing-widget']");
-  if (bar === null) {
-    return null;
+function findBar(): Element | null {
+  for (const selector of BAR) {
+    const node = document.querySelector(selector);
+    if (node !== null) {
+      return node;
+    }
   }
-  return sanitizeTrack({
-    source: "spotifyWeb",
-    title: readText(bar, ["[data-testid='context-item-info-title']", "[data-testid='context-item-link']"]),
-    artist: readText(bar, [
-      "[data-testid='context-item-info-subtitles']",
-      "[data-testid='context-item-info-artist']",
-    ]),
-    album: null,
-    artworkUrl: readImageSrc(bar, ["[data-testid='cover-art-image']", "img"]),
-    playing: buttonSaysPause(document, PLAY_PAUSE) || mediaPlaying(document),
-  });
+  return null;
+}
+
+function readSpotifyWeb(): Reading {
+  const bar = findBar();
+  if (bar === null) {
+    return SILENT;
+  }
+  return parsed(
+    sanitizeTrack({
+      source: "spotifyWeb",
+      title: readText(bar, TITLE),
+      artist: readText(bar, ARTIST),
+      album: null,
+      artworkUrl: readImageSrc(bar, ART),
+      playing: isPlaying(document, PLAY_PAUSE),
+    }),
+  );
 }
 
 void startAdapter({

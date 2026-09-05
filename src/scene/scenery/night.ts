@@ -1,87 +1,153 @@
-import { box, disc, frame, glow, gray, hash, line, tint, wave, type Canvas2D } from "../ink.ts";
+import {
+  AMBER, CYAN, MINT, PINK, TONE, VIOLET, box, cast, disc, ellipse, glow, gray, hash, hue, line,
+  panel, plant, poly, pool, slab, star, steam, wash, wave, type Canvas2D, type Rgb,
+} from "../ink.ts";
 import type { Scenery } from "./scenery.ts";
 
-const STARS = 70;
+const LEDGE = 0.68;
+const STARS = 80;
 
 function drawSky(ctx: Canvas2D, w: number, h: number, u: number, phase: number): void {
+  wash(ctx, 0, 0, w, h * LEDGE, gray(0.1), gray(0.3));
+  for (let i = 0; i < 5; i += 1) {
+    const drift = ((hash(i) + phase * 0.5) % 1) * (w + u * 50) - u * 25;
+    ellipse(ctx, drift, h * (0.05 + hash(i + 3) * 0.18), u * (13 + hash(i + 8) * 12), u * 3.4, gray(0.22));
+  }
   for (let i = 0; i < STARS; i += 1) {
-    const cycles = 2 + (i % 4);
-    const twinkle = 0.35 + 0.65 * Math.abs(wave(phase, cycles, hash(i)));
-    disc(ctx, hash(i + 3) * w, hash(i + 9) * h * 0.55, u * (0.5 + hash(i + 17) * 0.5), gray(twinkle));
+    const twinkle = 0.45 + 0.55 * Math.abs(wave(phase, 2 + (i % 4), hash(i)));
+    disc(ctx, hash(i + 3) * w, hash(i + 9) * h * 0.46, u * (0.7 + hash(i + 17) * 0.6), gray(twinkle));
   }
-  const streak = phase * 4 - 0.5;
+  for (let i = 0; i < 5; i += 1) {
+    star(ctx, hash(i + 61) * w, hash(i + 71) * h * 0.36, u * 2.4,
+      hue(i % 2 === 0 ? CYAN : PINK, 0.75 + 0.25 * Math.abs(wave(phase, 2, hash(i)))));
+  }
+  const streak = phase * 4 - 0.4;
   if (streak > 0 && streak < 1) {
-    const sx = w * 0.15 + streak * w * 0.5;
-    const sy = h * 0.08 + streak * h * 0.18;
-    line(ctx, sx, sy, sx - u * 8, sy - u * 3, gray(0.9 * (1 - streak)), u * 0.9);
+    const sx = w * 0.1 + streak * w * 0.55;
+    const sy = h * 0.05 + streak * h * 0.18;
+    line(ctx, sx, sy, sx - u * 13, sy - u * 5, gray(1 - streak), u * 1.2);
   }
-  const mx = w * 0.82;
-  const my = h * 0.16;
-  glow(ctx, mx, my, u * 16, gray(0.22));
-  disc(ctx, mx, my, u * 5, gray(0.95));
-  disc(ctx, mx + u * 2, my - u * 1.2, u * 4.2, gray(0));
+  const mx = w * 0.85;
+  const my = h * 0.13;
+  glow(ctx, mx, my, u * 26, gray(0.45));
+  disc(ctx, mx, my, u * 7, gray(TONE.hot));
+  disc(ctx, mx + u * 2.8, my - u * 1.6, u * 5.8, gray(0.16));
 }
 
+/** A hazy far row, then a near row whose lit windows are the brightest thing below the moon. */
 function drawSkyline(ctx: Canvas2D, w: number, h: number, u: number, phase: number): void {
-  const base = h * 0.6;
-  let x = 0;
+  let x = -u * 5;
   let i = 0;
   while (x < w) {
-    const bw = u * (6 + hash(i) * 8);
-    const bh = h * (0.08 + hash(i + 30) * 0.22);
-    box(ctx, x, base - bh, bw, bh, gray(0.12));
-    frame(ctx, x, base - bh, bw, bh, gray(0.32), u * 0.6);
-    for (let win = 0; win < 6; win += 1) {
-      const wx = x + u * 1.2 + (win % 2) * (bw / 2);
-      const wy = base - bh + u * 2 + Math.floor(win / 2) * u * 4;
-      if (wy + u * 1.5 < base && hash(i * 10 + win) > 0.35) {
-        const flicker = wave(phase, 1 + (win % 3), hash(i + win)) > -0.6 ? 0.7 : 0.15;
-        box(ctx, wx, wy, u * 1.4, u * 1.6, tint(255, 230, 170, flicker));
+    const bw = u * (10 + hash(i + 100) * 14);
+    const bh = h * (0.12 + hash(i + 130) * 0.2);
+    box(ctx, x, h * 0.5 - bh, bw, bh, gray(0.2));
+    x += bw + u * 2;
+    i += 1;
+  }
+  const base = h * 0.58;
+  x = 0;
+  i = 0;
+  while (x < w) {
+    const bw = u * (8 + hash(i) * 10);
+    const bh = h * (0.1 + hash(i + 30) * 0.28);
+    box(ctx, x, base - bh, bw, bh, gray(0.3));
+    box(ctx, x, base - bh, bw, u * 1.4, gray(TONE.mid));
+    if (hash(i + 55) > 0.68) {
+      box(ctx, x + bw / 2 - u * 0.7, base - bh - u * 7, u * 1.4, u * 7, gray(TONE.mid));
+      disc(ctx, x + bw / 2, base - bh - u * 7, u * 1.5,
+        hue(PINK, 0.7 + 0.3 * Math.max(0, wave(phase, 2, hash(i)))));
+    }
+    const cols = Math.max(2, Math.floor(bw / (u * 4.5)));
+    const rows = Math.floor(bh / (u * 5.5));
+    for (let r = 0; r < rows; r += 1) {
+      for (let c = 0; c < cols; c += 1) {
+        if (hash(i * 40 + r * 7 + c) < 0.38) {
+          continue;
+        }
+        const flicker = wave(phase, 1 + ((r + c) % 3), hash(i + r + c)) > -0.7 ? 1 : 0.42;
+        box(ctx, x + u * 1.4 + c * (u * 4.5), base - bh + u * 3 + r * (u * 5.5), u * 2.2, u * 2.6,
+          hue(c % 3 === 0 ? CYAN : AMBER, flicker));
       }
     }
-    x += bw + u * 1.5;
+    x += bw + u * 1.8;
     i += 1;
+  }
+  pool(ctx, w * 0.5, base, w * 0.8, h * 0.14, hue(AMBER, 0.8));
+}
+
+function drawTower(ctx: Canvas2D, w: number, h: number, u: number): void {
+  const x = w * 0.66;
+  const y = h * 0.26;
+  panel(ctx, x, y, u * 16, u * 13, u, TONE.mid);
+  for (let i = 1; i < 4; i += 1) {
+    box(ctx, x, y + i * u * 3.2, u * 16, u * 1.2, gray(TONE.lit));
+  }
+  poly(ctx, [[x - u * 2.5, y], [x + u * 18.5, y], [x + u * 8, y - u * 7]], gray(TONE.lit));
+  for (const dx of [u * 2, u * 13]) {
+    box(ctx, x + dx, y + u * 13, u * 1.4, h * 0.58 - y - u * 13, gray(TONE.mid));
+  }
+}
+
+function drawLights(ctx: Canvas2D, w: number, h: number, u: number, phase: number): void {
+  const bulbs = 11;
+  const colors: readonly Rgb[] = [PINK, AMBER, CYAN];
+  for (let i = 0; i <= bulbs; i += 1) {
+    const t = i / bulbs;
+    const x0 = w * 0.03 + t * w * 0.94;
+    const y0 = h * 0.05 + Math.sin(t * Math.PI) * u * 8;
+    if (i < bulbs) {
+      const t1 = (i + 1) / bulbs;
+      line(ctx, x0, y0, w * 0.03 + t1 * w * 0.94, h * 0.05 + Math.sin(t1 * Math.PI) * u * 8, gray(TONE.mid), u * 0.8);
+    }
+    const on = 0.6 + 0.4 * Math.max(0, wave(phase, 2, t));
+    const color = colors[i % 3] ?? PINK;
+    glow(ctx, x0, y0 + u * 2.5, u * 8, hue(color, on));
+    disc(ctx, x0, y0 + u * 2.5, u * 1.8, hue(color, 1));
   }
 }
 
 function drawRoof(ctx: Canvas2D, w: number, h: number, u: number, phase: number): void {
-  const ledge = h * 0.72;
-  box(ctx, 0, ledge, w, h - ledge, gray(0.14));
-  line(ctx, 0, ledge, w, ledge, gray(0.9), u * 1.2);
-  for (let i = 0; i < 12; i += 1) {
-    line(ctx, i * (w / 12), ledge + u * 3, i * (w / 12), h, gray(0.28), u * 0.6);
+  const ledge = h * LEDGE;
+  box(ctx, 0, ledge, w, h - ledge, gray(0.26));
+  slab(ctx, 0, ledge - u * 4, w, u * 4.4, u, TONE.hot);
+  for (let i = 0; i < 8; i += 1) {
+    line(ctx, i * (w / 8), ledge, i * (w / 8), h, gray(0.14), u * 1.3);
   }
-  box(ctx, w * 0.06, ledge - h * 0.16, u * 9, h * 0.16, gray(0.2));
-  frame(ctx, w * 0.06, ledge - h * 0.16, u * 9, h * 0.16, gray(0.7), u * 0.8);
-  frame(ctx, w * 0.06 - u, ledge - h * 0.16 - u * 1.5, u * 11, u * 2, gray(0.75), u * 0.7);
-  for (let i = 0; i < 3; i += 1) {
-    const life = (hash(i) + phase * 2) % 1;
-    disc(ctx, w * 0.06 + u * 4.5 + wave(life, 1) * u * 2, ledge - h * 0.16 - u * 3 - life * u * 10, u * (1 + life * 1.5), gray(0.3 * (1 - life)));
+  for (let i = 1; i < 4; i += 1) {
+    line(ctx, 0, ledge + i * ((h - ledge) / 4), w, ledge + i * ((h - ledge) / 4), gray(0.14), u * 1.3);
   }
-  const bulbs = 9;
-  for (let i = 0; i <= bulbs; i += 1) {
-    const x0 = w * 0.2 + (i / bulbs) * w * 0.7;
-    const sag = Math.sin((i / bulbs) * Math.PI) * u * 4;
-    const y0 = h * 0.05 + sag;
-    if (i < bulbs) {
-      const x1 = w * 0.2 + ((i + 1) / bulbs) * w * 0.7;
-      const y1 = h * 0.05 + Math.sin(((i + 1) / bulbs) * Math.PI) * u * 4;
-      line(ctx, x0, y0, x1, y1, gray(0.45), u * 0.5);
-    }
-    const on = wave(phase, 2, i / bulbs) > 0 ? 1 : 0.4;
-    glow(ctx, x0, y0 + u * 1.5, u * 3.5, tint(255, 220, 150, 0.25 * on));
-    disc(ctx, x0, y0 + u * 1.5, u * 1.1, tint(255, 235, 190, on));
+  const ax = w * 0.02;
+  panel(ctx, ax, ledge - h * 0.15, u * 15, h * 0.15, u, TONE.near);
+  for (let i = 0; i < 5; i += 1) {
+    box(ctx, ax + u * 2, ledge - h * 0.14 + i * u * 3.4, u * 11, u * 1.4, gray(TONE.lit));
   }
-  frame(ctx, w * 0.6, ledge - u * 6, u * 10, u * 6, gray(0.6), u * 0.8);
-  box(ctx, w * 0.62, ledge - u * 4, u * 6, u * 2, gray(0.4));
+  slab(ctx, ax - u * 1.5, ledge - h * 0.15 - u * 2.6, u * 18, u * 2.6, u, TONE.edge);
+  steam(ctx, ax + u * 7.5, ledge - h * 0.15 - u * 4, u, phase, 4, (l) => gray(0.5 * l));
+  const dish = w * 0.9;
+  box(ctx, dish - u, ledge - u * 17, u * 2, u * 14, gray(TONE.lit));
+  ctx.fillStyle = gray(TONE.near);
+  ctx.beginPath();
+  ctx.ellipse(dish, ledge - u * 19, u * 7, u * 4, -0.5, 0, Math.PI * 2);
+  ctx.fill();
+  disc(ctx, dish + u * 2.4, ledge - u * 16, u * 1.5, gray(TONE.hot));
+  panel(ctx, w * 0.6, ledge - u * 11, u * 14, u * 11, u, TONE.mid);
+  box(ctx, w * 0.605, ledge - u * 10, u * 13, u * 1.4, gray(TONE.lit));
+  plant(ctx, w * 0.53, ledge, u, 33, phase, hue(MINT, 0.85));
+  plant(ctx, w * 0.78, ledge, u * 0.85, 41, phase, hue(MINT, 0.75));
+  ellipse(ctx, w * 0.34, h * (LEDGE + 0.18), w * 0.24, u * 5, gray(TONE.void));
+  disc(ctx, w * 0.965, ledge - u * 27, u * 1.8, hue(PINK, wave(phase, 4) > 0 ? 1 : 0.72));
 }
 
 export const night: Scenery = {
-  stand: { x: 0.36, y: 0.72 },
+  stand: { x: 0.34, y: 0.86 },
   draw(ctx, w, h, phase) {
     const u = w / 100;
     drawSky(ctx, w, h, u, phase);
     drawSkyline(ctx, w, h, u, phase);
+    drawTower(ctx, w, h, u);
     drawRoof(ctx, w, h, u, phase);
+    drawLights(ctx, w, h, u, phase);
+    cast(ctx, 0, 0, w, h, VIOLET, 0.07);
   },
 };

@@ -5,7 +5,7 @@
   --glass-strong: rgba(18, 18, 20, 0.82);
   --stroke: rgba(255, 255, 255, 0.14);
   --spec: rgba(255, 255, 255, 0.28);
-  --accent: #ee9a76;
+  --accent: #ff5d97;
   color-scheme: dark;
 }
 
@@ -196,10 +196,20 @@ body {
   transform: scale(0.94);
 }
 
+.icon-button:focus-visible,
+.expand:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
 .icon-button svg {
-  width: 16px;
-  height: 16px;
-  fill: currentColor;
+  width: 17px;
+  height: 17px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.7;
+  stroke-linecap: round;
+  stroke-linejoin: round;
 }
 
 .tools .icon-button {
@@ -208,8 +218,9 @@ body {
 }
 
 .tools .icon-button svg {
-  width: 12px;
-  height: 12px;
+  width: 13px;
+  height: 13px;
+  stroke-width: 2;
 }
 
 .icon-button.play {
@@ -301,6 +312,45 @@ body {
 #shell[data-variant="icon"] .expand {
   display: grid;
   background: var(--glass-strong);
+}
+
+/*
+ * A Document PiP window can be dragged to any size, so the card variant has to survive shapes it
+ * was never opened at: too short for a scene, too narrow for a full transport.
+ */
+@media (max-height: 150px) {
+  #shell[data-variant="expanded"] .scene,
+  #shell[data-variant="expanded"] .dim,
+  #shell[data-variant="expanded"] .tools {
+    display: none;
+  }
+
+  #shell[data-variant="expanded"] .card {
+    inset: 0;
+    border-radius: 0;
+    border: 0;
+    box-shadow: none;
+    background: var(--glass-strong);
+  }
+
+  #shell[data-variant="expanded"] .art {
+    width: 36px;
+    height: 36px;
+    border-radius: 9px;
+  }
+}
+
+@media (max-width: 300px) {
+  #shell[data-variant="expanded"] .prev,
+  #shell[data-variant="expanded"] .next {
+    display: none;
+  }
+}
+
+@media (max-width: 220px) {
+  .card .meta {
+    display: none;
+  }
 }
 
 @media (prefers-reduced-transparency: reduce) {

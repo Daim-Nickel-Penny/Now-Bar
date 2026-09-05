@@ -1,16 +1,32 @@
 export type Pixels = readonly string[];
 export type Palette = Readonly<Record<string, string>>;
 
+/** Taken off assets/logo.png: a pale pink voxel axolotl in charcoal headphones. */
 export const AXOLOTL_PALETTE: Palette = {
-  B: "#ee9a76",
-  S: "#c8785a",
-  E: "#2a1a1a",
-  M: "#8a4a3a",
-  H: "#3b5bb5",
-  L: "#7c9df0",
-  C: "#f4b3a0",
-  G: "#f08aa8",
+  W: "#ffeaf3",
+  B: "#fbcede",
+  b: "#f2b9d0",
+  S: "#e6a2c2",
+  P: "#ff7fb0",
+  C: "#ff9dc6",
+  G: "#ff5d97",
+  g: "#ff9ec4",
+  R: "#d8386f",
+  E: "#33143a",
+  M: "#8c2f57",
+  H: "#3a3a46",
+  h: "#2a2a33",
+  L: "#7b7b8b",
+  N: "#ff77ad",
 };
+
+export function mirrorPixels(pixels: Pixels): Pixels {
+  return pixels.map((line) => [...line].reverse().join(""));
+}
+
+export function recolor(pixels: Pixels, from: string, to: string): Pixels {
+  return pixels.map((line) => line.replaceAll(from, to));
+}
 
 export function paintPixels(
   ctx: CanvasRenderingContext2D,

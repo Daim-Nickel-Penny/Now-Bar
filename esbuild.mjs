@@ -36,7 +36,7 @@ await cp(join(root, "src/panel/panel.html"), join(dist, "panel/panel.html"));
 await cp(join(root, "src/panel/panel.css"), join(dist, "panel/panel.css"));
 
 for (const size of [16, 32, 48, 128]) {
-  await sharp(join(root, "logo.avif"))
+  await sharp(join(root, "assets/logo.png"))
     .resize(size, size)
     .png()
     .toFile(join(dist, "icons", `icon-${size}.png`));

@@ -6,6 +6,7 @@ import {
   parseNowPlayingReply,
   parseOwnerMail,
   parsePanelMail,
+  parseTrackReply,
 } from "./message.ts";
 
 const youtubeTrack: Track = {
@@ -90,25 +91,87 @@ describe("parsePanelMail", () => {
 });
 
 describe("parseOwnerMail", () => {
-  it("accepts only openFloater", () => {
+  it("accepts the two things the mailbox may ask a Source tab to do", () => {
     expect(parseOwnerMail({ type: "openFloater" })).toEqual({ type: "openFloater" });
+    expect(parseOwnerMail({ type: "reportTrack" })).toEqual({ type: "reportTrack" });
+  });
+
+  it("rejects anything else", () => {
     expect(parseOwnerMail({ type: "requestTrack" })).toBeNull();
+    expect(parseOwnerMail({})).toBeNull();
     expect(parseOwnerMail(null)).toBeNull();
+    expect(parseOwnerMail("openFloater")).toBeNull();
+  });
+});
+
+describe("parseAdapterMail unreadable", () => {
+  it("accepts the reading that says the player bar stopped parsing", () => {
+    expect(parseAdapterMail({ type: "unreadable" })).toEqual({ type: "unreadable" });
+  });
+});
+
+describe("parseTrackReply", () => {
+  it("sanitizes the track a Source tab reports back", () => {
+    expect(parseTrackReply({ type: "trackReply", track: youtubeTrack, readable: true })).toEqual({
+      type: "trackReply",
+      track: youtubeTrack,
+      readable: true,
+    });
+  });
+
+  it("reads silence as a reply with no track, not as a broken reply", () => {
+    expect(parseTrackReply({ type: "trackReply", track: null, readable: true })).toEqual({
+      type: "trackReply",
+      track: null,
+      readable: true,
+    });
+  });
+
+  it("drops artwork from a host that is not a Source CDN", () => {
+    const reply = parseTrackReply({
+      type: "trackReply",
+      track: { ...youtubeTrack, artworkUrl: "https://evil.example/pixel.png" },
+      readable: true,
+    });
+    expect(reply?.track?.artworkUrl).toBeNull();
+  });
+
+  it("rejects a reply that is not one", () => {
+    expect(parseTrackReply({ type: "nowPlaying", track: null, readable: true })).toBeNull();
+    expect(parseTrackReply({ type: "trackReply", track: null })).toBeNull();
+    expect(parseTrackReply(null)).toBeNull();
   });
 });
 
 describe("parseNowPlayingReply", () => {
   it("sanitizes the track and requires connected", () => {
     expect(
-      parseNowPlayingReply({ type: "nowPlaying", track: youtubeTrack, connected: true }),
-    ).toEqual({ type: "nowPlaying", track: youtubeTrack, connected: true });
-    expect(parseNowPlayingReply({ type: "nowPlaying", track: null, connected: false })).toEqual({
-      type: "nowPlaying",
-      track: null,
-      connected: false,
-    });
+      parseNowPlayingReply({
+        type: "nowPlaying",
+        track: youtubeTrack,
+        connected: true,
+        readable: true,
+      }),
+    ).toEqual({ type: "nowPlaying", track: youtubeTrack, connected: true, readable: true });
+    expect(
+      parseNowPlayingReply({ type: "nowPlaying", track: null, connected: false, readable: true }),
+    ).toEqual({ type: "nowPlaying", track: null, connected: false, readable: true });
     expect(parseNowPlayingReply({ type: "nowPlaying", track: null })).toBeNull();
     expect(parseNowPlayingReply({ type: "track", track: null, connected: true })).toBeNull();
+  });
+
+  it("carries an unreadable player bar through", () => {
+    expect(
+      parseNowPlayingReply({ type: "nowPlaying", track: null, connected: true, readable: false })
+        ?.readable,
+    ).toBe(false);
+  });
+
+  it("drops a reply whose flags are missing or the wrong shape", () => {
+    expect(parseNowPlayingReply({ type: "nowPlaying", track: null, connected: true })).toBeNull();
+    expect(
+      parseNowPlayingReply({ type: "nowPlaying", track: null, connected: true, readable: "yes" }),
+    ).toBeNull();
   });
 });
 

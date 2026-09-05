@@ -5,6 +5,14 @@ export type AsciiGrid = { cols: number; rows: number; cell: number };
 
 const GLYPH_RAMP = " .,:;i1tfLCG08@";
 
+/**
+ * Dots stay readable on a fine grid, so the Scenery keeps its detail. A glyph has to be big enough
+ * to tell one character from another, so that style gets a much coarser cell.
+ */
+export function cellFor(style: AsciiStyle, basePx: number): number {
+  return style === "glyphs" ? basePx * 2.2 : basePx;
+}
+
 export function asciiOptions(style: AsciiStyle, cellPx: number): AsciiOptions {
   const shared: AsciiOptions = {
     ...DEFAULT_OPTIONS,
@@ -13,11 +21,12 @@ export function asciiOptions(style: AsciiStyle, cellPx: number): AsciiOptions {
     colorMode: "fullcolor",
     accentColor: "#ffffff",
     invert: false,
-    contrast: 0.08,
+    brightness: 0.25,
+    contrast: 0.15,
   };
   switch (style) {
     case "dots":
-      return { ...shared, renderMode: "dots", charAspect: 1, dotSizeRatio: 0.72 };
+      return { ...shared, renderMode: "dots", charAspect: 1, dotSizeRatio: 0.9 };
     case "glyphs":
       return { ...shared, renderMode: "ascii", charAspect: 0.55, charset: GLYPH_RAMP };
     default: {

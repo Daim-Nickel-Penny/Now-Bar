@@ -1,3 +1,4 @@
+import { ICON_PATHS, type IconName } from "./icons.ts";
 import type { ShellVariant } from "./shell-variant.ts";
 
 export type FloaterShell = {
@@ -17,31 +18,38 @@ export type FloaterShell = {
   expand: HTMLButtonElement;
 };
 
-const ICON = {
-  prev: "M6 6h2v12H6zM20 6v12L9.5 12z",
-  play: "M8 5v14l11-7z",
-  pause: "M6 5h4v14H6zM14 5h4v14h-4z",
-  next: "M16 6h2v12h-2zM4 6v12l10.5-6z",
-  scene: "M4 4h4v4H4zM10 4h4v4h-4zM16 4h4v4h-4zM4 10h4v4H4zM10 10h4v4h-4zM16 10h4v4h-4zM4 16h4v4H4zM10 16h4v4h-4zM16 16h4v4h-4z",
-  collapse: "M5 11h14v2H5z",
-  close: "M6.4 5 5 6.4 10.6 12 5 17.6 6.4 19 12 13.4 17.6 19 19 17.6 13.4 12 19 6.4 17.6 5 12 10.6z",
-} as const;
+const SVG_NS = "http://www.w3.org/2000/svg";
 
-type IconName = keyof typeof ICON;
+/** Hugeicons glyphs are one to four stroked paths, so the count changes with the icon. */
+function paintIcon(svg: SVGSVGElement, name: IconName): void {
+  const doc = svg.ownerDocument;
+  const paths = ICON_PATHS[name];
+  while (svg.childNodes.length > paths.length) {
+    svg.lastChild?.remove();
+  }
+  for (const [i, d] of paths.entries()) {
+    let node = svg.childNodes[i] as SVGPathElement | undefined;
+    if (node === undefined) {
+      node = doc.createElementNS(SVG_NS, "path");
+      svg.appendChild(node);
+    }
+    node.setAttribute("d", d);
+  }
+}
 
 function icon(doc: Document, name: IconName): SVGSVGElement {
-  const svg = doc.createElementNS("http://www.w3.org/2000/svg", "svg");
+  const svg = doc.createElementNS(SVG_NS, "svg");
   svg.setAttribute("viewBox", "0 0 24 24");
   svg.setAttribute("aria-hidden", "true");
-  const path = doc.createElementNS("http://www.w3.org/2000/svg", "path");
-  path.setAttribute("d", ICON[name]);
-  svg.appendChild(path);
+  paintIcon(svg, name);
   return svg;
 }
 
 export function setIcon(button: HTMLButtonElement, name: IconName): void {
-  const path = button.querySelector("path");
-  path?.setAttribute("d", ICON[name]);
+  const svg = button.querySelector("svg");
+  if (svg !== null) {
+    paintIcon(svg, name);
+  }
 }
 
 function iconButton(doc: Document, name: IconName, label: string, className: string): HTMLButtonElement {
@@ -93,7 +101,7 @@ export function buildFloaterShell(doc: Document, variant: ShellVariant): Floater
   meta.append(title, artist);
 
   const transport = element(doc, "div", "transport");
-  const prev = iconButton(doc, "prev", "Previous", "prev");
+  const prev = iconButton(doc, "previous", "Previous", "prev");
   const play = iconButton(doc, "play", "Play", "play");
   const next = iconButton(doc, "next", "Next", "next");
   transport.append(prev, play, next);
