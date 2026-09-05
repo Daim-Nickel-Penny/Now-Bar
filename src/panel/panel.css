@@ -4,8 +4,8 @@
   --bg: #0e0e10;
   --card: #17171a;
   --stroke: rgba(255, 255, 255, 0.1);
-  --accent: #ff5d97;
-  --accent-ink: #2a0716;
+  --accent: #a678ff;
+  --accent-ink: #160c28;
   color-scheme: dark;
 }
 
@@ -70,7 +70,7 @@ h1 {
 
 .status[data-state="playing"]::before {
   background: var(--accent);
-  box-shadow: 0 0 0 3px rgba(255, 93, 151, 0.22);
+  box-shadow: 0 0 0 3px rgba(166, 120, 255, 0.22);
 }
 
 .now {
@@ -325,7 +325,7 @@ h1 {
 }
 
 .chips input:checked + span {
-  background: rgba(238, 154, 118, 0.16);
+  background: rgba(166, 120, 255, 0.16);
   border-color: var(--accent);
   color: var(--ink);
 }

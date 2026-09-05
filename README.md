@@ -1,10 +1,8 @@
 # Now Bar
 
-A Chrome extension that puts what you are listening to in a small window that stays on top of other apps.
+The other day I saw [Claude FM](https://www.youtube.com/watch?v=tRsQsTMvPNg) on YouTube and wondered how they made that ASCII videos. Curiosity led me to [asciify](https://asciify.org/). Then I built this simple Chrome extension to play with ASCII art.
 
-Works with YouTube Music and Spotify in the browser. The window shows the track, playback controls, volume, and a looping ASCII scene with an axolotl. Nothing is sent off your machine.
-
-Inspired by [Claude FM](https://www.youtube.com/watch?v=tRsQsTMvPNg)
+It shows what you are listening to in a small window that stays on top. Works with YouTube Music and Spotify in the browser. You get the track, playback controls, volume, and a looping ASCII scene with an axolotl :) Nothing is sent off your machine.
 
 ## Demo
 
@@ -32,17 +30,17 @@ Then load it in Chrome:
 3. Click **Load unpacked**
 4. Select the `dist` folder — not the project root
 
-After you change code, run `npm run build` again, then click **Reload** on the extension card. Open music tabs pick the new build up on their own — Chrome does not re-inject content scripts, so the extension re-injects them itself.
+After you change code, run `npm run build` again, then click **Reload** on the extension card.
 
 ## Use
 
 1. Open [YouTube Music](https://music.youtube.com) or [Spotify](https://open.spotify.com) and press play.
 2. The floating window should open by itself.
-3. If it does not, click the small **Now Bar** pill at the bottom right of the page. Chrome only allows this window to open after a click on the music tab. The **×** on the pill hides it until the next track.
+3. If it does not, click the small **Now Bar** pill at the bottom right of the page. Chrome only lets this window open after a click on the music tab. The **×** on the pill hides it until the next track.
 
 Click the toolbar icon to see what is playing and to change settings.
 
-Closing the window keeps it closed: it will not reopen on its own until you use the pill or **Open floater** in the popup.
+Closing the window keeps it closed. It will not reopen on its own until you use the pill or **Open floater** in the popup.
 
 In the floating window:
 
@@ -55,11 +53,9 @@ In the floating window:
 | Icon                   | Expand back to the card                                     |
 | Close                  | Close the window                                            |
 
-Drag the window's edge to resize it. The card remembers the size you leave it at. The scene stays
-visible above the track and shrinks with the leftover space; it is never hidden under the controls.
-Skip buttons, then the track text, drop as the window gets narrower.
+Drag the window's edge to resize it. The card remembers the size you leave it at.
 
-Chrome draws the title bar on this kind of window and there is no way for an extension to hide or restyle it. Dragging the window means dragging that bar.
+Chrome draws the title bar on this kind of window. There is no way for an extension to hide or restyle it. Drag the window by that bar.
 
 ## Settings
 
@@ -75,9 +71,9 @@ These live on the toolbar popup and stay on this computer.
 
 ## Privacy
 
-The extension only reads the player bar on `music.youtube.com` and `open.spotify.com`: title, artist, album, artwork, and whether something is playing. It can press that tab's playback and mute buttons and change that tab's media volume. Those two sites are the only ones it asks for access to. Volume is not saved.
+The extension only reads the player bar on `music.youtube.com` and `open.spotify.com`: title, artist, album, artwork, and whether something is playing. It can press that tab's playback and mute buttons and change that tab's volume. Those two sites are the only ones it asks for access to. Volume is not saved.
 
-It does not see other tabs, cookies, or your account. It does not call home, collect analytics, or write the track name to lasting storage.
+It does not see other tabs, cookies, or your account. It does not call home, collect analytics, or save the track name.
 
 See [docs/privacy.md](docs/privacy.md).
 
