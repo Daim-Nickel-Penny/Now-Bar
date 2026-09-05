@@ -8,6 +8,10 @@ Works with YouTube Music and Spotify in the browser. The window shows the track,
 
 Inspired by [Claude FM](https://www.youtube.com/watch?v=tRsQsTMvPNg)
 
+<video src="demo.mp4" controls width="720"></video>
+
+[Watch the demo](demo.mp4)
+
 ## Requirements
 
 - Chrome 116 or newer, on a desktop
