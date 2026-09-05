@@ -14,18 +14,20 @@ export function isSourceSender(url: string | undefined): boolean {
   if (parsed.username !== "" || parsed.password !== "") {
     return false;
   }
-  return (
-    parsed.hostname === "music.youtube.com" ||
-    parsed.hostname === "open.spotify.com"
-  );
+  return parsed.hostname === "music.youtube.com" || parsed.hostname === "open.spotify.com";
 }
 
-export function isOwnerSender(
-  url: string | undefined,
-  extensionOrigin: string,
-): boolean {
+export function isPanelSender(url: string | undefined, extensionOrigin: string): boolean {
   if (url === undefined || extensionOrigin === "") {
     return false;
   }
-  return url.startsWith(extensionOrigin);
+  return url.startsWith(`${extensionOrigin}/`);
+}
+
+export function isMailboxSender(
+  senderId: string | undefined,
+  senderTabId: number | undefined,
+  extensionId: string,
+): boolean {
+  return senderId === extensionId && senderTabId === undefined;
 }

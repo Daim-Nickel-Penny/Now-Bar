@@ -1,6 +1,12 @@
 import { describe, expect, it } from "vitest";
 import type { Track } from "../track/track.ts";
-import { assertNever, parseAdapterMail, parseOwnerMail } from "./message.ts";
+import {
+  assertNever,
+  parseAdapterMail,
+  parseNowPlayingReply,
+  parseOwnerMail,
+  parsePanelMail,
+} from "./message.ts";
 
 const youtubeTrack: Track = {
   source: "youtubeMusic",
@@ -23,9 +29,8 @@ const spotifyTrack: Track = {
 describe("parseAdapterMail", () => {
   it("drops unknown type", () => {
     expect(parseAdapterMail({ type: "download" })).toBeNull();
-    expect(parseAdapterMail({ type: "openTab" })).toBeNull();
+    expect(parseAdapterMail({ type: "openFloater" })).toBeNull();
     expect(parseAdapterMail({ type: "requestTrack" })).toBeNull();
-    expect(parseAdapterMail({ type: "fetch" })).toBeNull();
     expect(parseAdapterMail({ type: 1 })).toBeNull();
     expect(parseAdapterMail(null)).toBeNull();
     expect(parseAdapterMail(undefined)).toBeNull();
@@ -60,35 +65,50 @@ describe("parseAdapterMail", () => {
 
   it("drops a track with a broken shape", () => {
     expect(
-      parseAdapterMail({
-        type: "track",
-        track: { ...youtubeTrack, source: "appleMusic" },
-      }),
+      parseAdapterMail({ type: "track", track: { ...youtubeTrack, source: "appleMusic" } }),
     ).toBeNull();
-    expect(
-      parseAdapterMail({
-        type: "track",
-        track: { ...youtubeTrack, title: 12 },
-      }),
-    ).toBeNull();
+    expect(parseAdapterMail({ type: "track", track: { ...youtubeTrack, title: 12 } })).toBeNull();
     expect(parseAdapterMail({ type: "track", track: null })).toBeNull();
     expect(parseAdapterMail({ type: "track" })).toBeNull();
   });
 });
 
-describe("parseOwnerMail", () => {
+describe("parsePanelMail", () => {
   it("drops unknown type", () => {
-    expect(parseOwnerMail({ type: "track", track: youtubeTrack })).toBeNull();
-    expect(parseOwnerMail({ type: "idle" })).toBeNull();
-    expect(parseOwnerMail({ type: "download" })).toBeNull();
-    expect(parseOwnerMail(null)).toBeNull();
+    expect(parsePanelMail({ type: "track", track: youtubeTrack })).toBeNull();
+    expect(parsePanelMail({ type: "idle" })).toBeNull();
+    expect(parsePanelMail({ type: "download" })).toBeNull();
+    expect(parsePanelMail(null)).toBeNull();
   });
 
-  it("accepts requestTrack", () => {
-    expect(parseOwnerMail({ type: "requestTrack" })).toEqual({ type: "requestTrack" });
-    expect(parseOwnerMail({ type: "requestTrack", extra: true })).toEqual({
+  it("accepts requestTrack and openFloater without extras", () => {
+    expect(parsePanelMail({ type: "requestTrack", extra: true })).toEqual({
       type: "requestTrack",
     });
+    expect(parsePanelMail({ type: "openFloater", tabId: 9 })).toEqual({ type: "openFloater" });
+  });
+});
+
+describe("parseOwnerMail", () => {
+  it("accepts only openFloater", () => {
+    expect(parseOwnerMail({ type: "openFloater" })).toEqual({ type: "openFloater" });
+    expect(parseOwnerMail({ type: "requestTrack" })).toBeNull();
+    expect(parseOwnerMail(null)).toBeNull();
+  });
+});
+
+describe("parseNowPlayingReply", () => {
+  it("sanitizes the track and requires connected", () => {
+    expect(
+      parseNowPlayingReply({ type: "nowPlaying", track: youtubeTrack, connected: true }),
+    ).toEqual({ type: "nowPlaying", track: youtubeTrack, connected: true });
+    expect(parseNowPlayingReply({ type: "nowPlaying", track: null, connected: false })).toEqual({
+      type: "nowPlaying",
+      track: null,
+      connected: false,
+    });
+    expect(parseNowPlayingReply({ type: "nowPlaying", track: null })).toBeNull();
+    expect(parseNowPlayingReply({ type: "track", track: null, connected: true })).toBeNull();
   });
 });
 

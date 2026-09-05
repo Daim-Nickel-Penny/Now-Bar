@@ -1,75 +1,42 @@
-import type { AxolotlActivity } from "./axolotl-sprite.ts";
+import type { SceneId } from "./scene-id.ts";
+import { SCENE_IDS } from "./scene-id.ts";
 
-export type SceneId =
-  | "axolotl"
-  | "rain"
-  | "night"
-  | "forest"
-  | "waves"
-  | "aurora"
-  | "neon"
-  | "city"
-  | "desert"
-  | "ocean"
-  | "mountain"
-  | "cave"
-  | "garden"
-  | "library"
-  | "studio"
-  | "arcade"
-  | "observatory"
-  | "harbor"
-  | "meadow"
-  | "volcano"
-  | "glacier"
-  | "disco"
-  | "hearth";
-
-export type SceneMotion = "sparkle" | "flicker" | "drift" | "rain" | "swim";
+export type Activity = "reading" | "sleeping" | "dancing" | "guitar" | "gaming" | "cooking";
 
 export type Scene = {
   id: SceneId;
-  kind: "field";
-  motion: SceneMotion;
+  name: string;
   loopMs: number;
-  activity: AxolotlActivity;
+  activity: Activity;
 };
 
-export const playlist: readonly Scene[] = [
-  { id: "axolotl", kind: "field", motion: "swim", loopMs: 22000, activity: "sleeping" },
-  { id: "rain", kind: "field", motion: "rain", loopMs: 16000, activity: "reading" },
-  { id: "night", kind: "field", motion: "drift", loopMs: 22000, activity: "sleeping" },
-  { id: "forest", kind: "field", motion: "drift", loopMs: 20000, activity: "painting" },
-  { id: "waves", kind: "field", motion: "flicker", loopMs: 17000, activity: "dancing" },
-  { id: "aurora", kind: "field", motion: "drift", loopMs: 24000, activity: "sleeping" },
-  { id: "neon", kind: "field", motion: "sparkle", loopMs: 16000, activity: "gaming" },
-  { id: "city", kind: "field", motion: "sparkle", loopMs: 19000, activity: "guitar" },
-  { id: "desert", kind: "field", motion: "drift", loopMs: 21000, activity: "chores" },
-  { id: "ocean", kind: "field", motion: "swim", loopMs: 20000, activity: "dancing" },
-  { id: "mountain", kind: "field", motion: "drift", loopMs: 23000, activity: "reading" },
-  { id: "cave", kind: "field", motion: "flicker", loopMs: 18000, activity: "cooking" },
-  { id: "garden", kind: "field", motion: "drift", loopMs: 20000, activity: "chores" },
-  { id: "library", kind: "field", motion: "flicker", loopMs: 22000, activity: "reading" },
-  { id: "studio", kind: "field", motion: "sparkle", loopMs: 17000, activity: "guitar" },
-  { id: "arcade", kind: "field", motion: "sparkle", loopMs: 16000, activity: "gaming" },
-  { id: "observatory", kind: "field", motion: "drift", loopMs: 25000, activity: "reading" },
-  { id: "harbor", kind: "field", motion: "swim", loopMs: 21000, activity: "cooking" },
-  { id: "meadow", kind: "field", motion: "drift", loopMs: 19000, activity: "painting" },
-  { id: "volcano", kind: "field", motion: "flicker", loopMs: 18000, activity: "cooking" },
-  { id: "glacier", kind: "field", motion: "drift", loopMs: 24000, activity: "sleeping" },
-  { id: "disco", kind: "field", motion: "sparkle", loopMs: 20000, activity: "dancing" },
-  { id: "hearth", kind: "field", motion: "flicker", loopMs: 18000, activity: "reading" },
-];
+const SCENES: Record<SceneId, Scene> = {
+  hearth: { id: "hearth", name: "Hearth", loopMs: 12000, activity: "reading" },
+  rain: { id: "rain", name: "Rainy window", loopMs: 12000, activity: "sleeping" },
+  disco: { id: "disco", name: "Disco", loopMs: 8000, activity: "dancing" },
+  night: { id: "night", name: "Rooftop night", loopMs: 16000, activity: "guitar" },
+  arcade: { id: "arcade", name: "Arcade", loopMs: 8000, activity: "gaming" },
+  kitchen: { id: "kitchen", name: "Kitchen", loopMs: 12000, activity: "cooking" },
+};
 
-export function sceneAt(index: number): Scene {
-  const scene = playlist.at(index % playlist.length);
-  if (scene === undefined) {
-    throw new Error("playlist");
-  }
-  return scene;
+export function sceneById(id: SceneId): Scene {
+  return SCENES[id];
 }
 
-export function nextScene(id: SceneId): Scene {
-  const index = playlist.findIndex((scene) => scene.id === id);
-  return sceneAt(index + 1);
+export function allScenes(): readonly Scene[] {
+  return SCENE_IDS.map(sceneById);
+}
+
+export function firstScene(active: readonly SceneId[]): Scene {
+  const id = active[0] ?? SCENE_IDS[0];
+  return sceneById(id);
+}
+
+export function nextScene(current: SceneId, active: readonly SceneId[]): Scene {
+  if (active.length === 0) {
+    return sceneById(SCENE_IDS[0]);
+  }
+  const index = active.indexOf(current);
+  const nextId = active[(index + 1) % active.length] ?? active[0];
+  return sceneById(nextId ?? SCENE_IDS[0]);
 }

@@ -1,19 +1,23 @@
-# 0003. Scene loops go through asciify-engine video
+# 0003. Scenes are drawn per frame through asciify-engine
 
 ## Status
 
-Accepted
+Accepted (supersedes the `asciifyVideo` decoder)
 
 ## Context
 
-Claude FM-style motion is a looping scene, not a still. [asciify-engine](https://asciify.org/) already converts a live video element to ASCII or dots. Hand-rolled dither would duplicate that work at lower quality.
+Claude FM-style motion is a dotted ASCII room with a solid pixel mascot. The first cut fed a `captureStream` canvas into a hidden `<video>` and `asciifyVideo`. Inside a Document PiP window the video never reliably decoded, `asciifyVideo` threw, and the fallback painted a raw canvas, so no ASCII ever showed.
+
+[asciify-engine](https://asciify.org/) also exports the synchronous pair `imageToAsciiFrame` and `renderFrameToCanvas`, which take a canvas and return a frame with no video involved.
 
 ## Decision
 
-The Floater plays a ScenePlaylist of distinct looping videos, not one Scene forever. Each Scene is a hidden (but decoded) `<video>` fed by a source canvas `captureStream` or a short muted `webm`. `asciifyVideo` renders it with `renderMode: "dots"` and `colorMode: "fullcolor"`.
+Each frame: the Scenery draws into a small offscreen canvas with a phase in `[0, 1)`; `imageToAsciiFrame` samples it; `renderFrameToCanvas` paints dots or glyphs onto the visible canvas; the Axolotl is painted last, in solid pixels aligned to the ASCII cell grid.
 
-Only one Scene is decoded. The next plate/video preloads after the current loop starts, then we swap at a loop boundary with a short crossfade. The decoder stops when the shell is collapsed, hidden, or `prefers-reduced-motion` is on.
+Every Scenery motion is a function of the phase using integer frequencies, so the loop is seamless. The frame rate is capped at 20 fps. `prefers-reduced-motion` freezes the phase at zero. The loop stops when the Floater is collapsed or hidden.
+
+Only one Scene runs at a time. Scene changes dip the canvas opacity for 400 ms, swap, and fade back.
 
 ## Consequences
 
-The player chunk includes asciify-engine. Live streaming keeps memory flat (no pre-extracted frame arrays, no eight parallel videos). `display: none` on the backing video is forbidden; it stays in-tree at real size with opacity 0.
+Adapter chunks include asciify-engine. Memory stays flat: two canvases and one frame array. No `<video>`, no `captureStream`, no web-accessible scene assets.

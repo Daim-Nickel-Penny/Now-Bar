@@ -2,8 +2,9 @@ import type { Track } from "../track/track.ts";
 import { sanitizeTrack } from "../track/sanitize-track.ts";
 
 export type AdapterMail = { type: "track"; track: Track } | { type: "idle" };
-export type OwnerMail = { type: "requestTrack" };
-export type Mail = AdapterMail | OwnerMail;
+export type PanelMail = { type: "requestTrack" } | { type: "openFloater" };
+export type OwnerMail = { type: "openFloater" };
+export type NowPlayingReply = { type: "nowPlaying"; track: Track | null; connected: boolean };
 
 export function assertNever(value: never): never {
   throw new Error(`unexpected:${String(value)}`);
@@ -14,10 +15,6 @@ function mailRecord(input: unknown): Record<string, unknown> | null {
     return null;
   }
   return input as Record<string, unknown>;
-}
-
-function trackFromUnknown(input: unknown): Track | null {
-  return sanitizeTrack(input);
 }
 
 export function parseAdapterMail(input: unknown): AdapterMail | null {
@@ -31,7 +28,7 @@ export function parseAdapterMail(input: unknown): AdapterMail | null {
   }
   switch (type) {
     case "track": {
-      const track = trackFromUnknown(raw.track);
+      const track = sanitizeTrack(raw.track);
       if (!track) {
         return null;
       }
@@ -44,19 +41,37 @@ export function parseAdapterMail(input: unknown): AdapterMail | null {
   }
 }
 
-export function parseOwnerMail(input: unknown): OwnerMail | null {
+export function parsePanelMail(input: unknown): PanelMail | null {
   const raw = mailRecord(input);
   if (!raw) {
     return null;
   }
   const type = raw.type;
-  if (type !== "requestTrack") {
+  if (type !== "requestTrack" && type !== "openFloater") {
     return null;
   }
   switch (type) {
     case "requestTrack":
       return { type: "requestTrack" };
+    case "openFloater":
+      return { type: "openFloater" };
     default:
       return assertNever(type);
   }
+}
+
+export function parseOwnerMail(input: unknown): OwnerMail | null {
+  const raw = mailRecord(input);
+  if (!raw || raw.type !== "openFloater") {
+    return null;
+  }
+  return { type: "openFloater" };
+}
+
+export function parseNowPlayingReply(input: unknown): NowPlayingReply | null {
+  const raw = mailRecord(input);
+  if (!raw || raw.type !== "nowPlaying" || typeof raw.connected !== "boolean") {
+    return null;
+  }
+  return { type: "nowPlaying", track: sanitizeTrack(raw.track), connected: raw.connected };
 }

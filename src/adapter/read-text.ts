@@ -21,6 +21,21 @@ export function readImageSrc(root: ParentNode, selectors: readonly string[]): st
 }
 
 export function mediaPlaying(root: ParentNode): boolean {
-  const media = root.querySelector<HTMLMediaElement>("video, audio");
-  return media !== null && !media.paused && !media.ended;
+  for (const media of root.querySelectorAll<HTMLMediaElement>("video, audio")) {
+    if (!media.paused && !media.ended && media.readyState > 2) {
+      return true;
+    }
+  }
+  return false;
+}
+
+export function buttonSaysPause(root: ParentNode, selectors: readonly string[]): boolean {
+  for (const selector of selectors) {
+    const button = root.querySelector<HTMLElement>(selector);
+    const label = (button?.getAttribute("aria-label") ?? button?.getAttribute("title") ?? "").toLowerCase();
+    if (label !== "") {
+      return label.startsWith("pause");
+    }
+  }
+  return false;
 }

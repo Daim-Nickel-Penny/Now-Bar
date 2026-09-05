@@ -1,12 +1,16 @@
-import type { SceneLoop } from "../scene/loop.ts";
-
 export type ShellVariant = "expanded" | "pill" | "icon";
 
-const SIZES: Record<ShellVariant, { width: number; height: number }> = {
-  expanded: { width: 360, height: 220 },
-  pill: { width: 300, height: 44 },
+export type ShellSize = { width: number; height: number };
+
+const SIZES: Record<ShellVariant, ShellSize> = {
+  expanded: { width: 380, height: 230 },
+  pill: { width: 300, height: 48 },
   icon: { width: 64, height: 64 },
 };
+
+export function isShellVariant(value: unknown): value is ShellVariant {
+  return value === "expanded" || value === "pill" || value === "icon";
+}
 
 export function nextVariant(current: ShellVariant): ShellVariant {
   switch (current) {
@@ -23,19 +27,6 @@ export function nextVariant(current: ShellVariant): ShellVariant {
   }
 }
 
-export function applyVariant(
-  shell: HTMLElement,
-  scenes: SceneLoop,
-  variant: ShellVariant,
-): void {
-  shell.dataset.variant = variant;
-  if (variant === "expanded") {
-    void scenes.start();
-    return;
-  }
-  scenes.stop();
-}
-
-export function variantSize(variant: ShellVariant): { width: number; height: number } {
+export function variantSize(variant: ShellVariant): ShellSize {
   return SIZES[variant];
 }

@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
-import { isOwnerSender, isSourceSender } from "./sender.ts";
+import { isMailboxSender, isPanelSender, isSourceSender } from "./sender.ts";
 
-const OWNER_ORIGIN = "chrome-extension://abcdefghijklmnopqrstuvwxyzabcdef";
+const PANEL_ORIGIN = "chrome-extension://abcdefghijklmnopqrstuvwxyzabcdef";
 
 describe("isSourceSender", () => {
   it("rejects http", () => {
@@ -40,18 +40,27 @@ describe("isSourceSender", () => {
   });
 });
 
-describe("isOwnerSender", () => {
-  it("accepts an extension page under the owner origin", () => {
-    expect(isOwnerSender(`${OWNER_ORIGIN}/owner.html`, OWNER_ORIGIN)).toBe(true);
-    expect(isOwnerSender(OWNER_ORIGIN, OWNER_ORIGIN)).toBe(true);
+describe("isPanelSender", () => {
+  it("accepts an extension page under the panel origin", () => {
+    expect(isPanelSender(`${PANEL_ORIGIN}/panel/panel.html`, PANEL_ORIGIN)).toBe(true);
   });
 
-  it("rejects another origin", () => {
-    expect(isOwnerSender("https://music.youtube.com/", OWNER_ORIGIN)).toBe(false);
+  it("rejects another origin or a prefix trick", () => {
+    expect(isPanelSender("https://music.youtube.com/", PANEL_ORIGIN)).toBe(false);
+    expect(isPanelSender(`${PANEL_ORIGIN}evil/panel.html`, PANEL_ORIGIN)).toBe(false);
     expect(
-      isOwnerSender("chrome-extension://otheridxxxxxxxxxxxxxxxxxxxx/owner.html", OWNER_ORIGIN),
+      isPanelSender("chrome-extension://otheridxxxxxxxxxxxxxxxxxxxx/panel.html", PANEL_ORIGIN),
     ).toBe(false);
-    expect(isOwnerSender(undefined, OWNER_ORIGIN)).toBe(false);
-    expect(isOwnerSender(`${OWNER_ORIGIN}/owner.html`, "")).toBe(false);
+    expect(isPanelSender(undefined, PANEL_ORIGIN)).toBe(false);
+    expect(isPanelSender(`${PANEL_ORIGIN}/panel.html`, "")).toBe(false);
+  });
+});
+
+describe("isMailboxSender", () => {
+  it("accepts only the service worker of this extension", () => {
+    expect(isMailboxSender("id", undefined, "id")).toBe(true);
+    expect(isMailboxSender("id", 4, "id")).toBe(false);
+    expect(isMailboxSender("other", undefined, "id")).toBe(false);
+    expect(isMailboxSender(undefined, undefined, "id")).toBe(false);
   });
 });

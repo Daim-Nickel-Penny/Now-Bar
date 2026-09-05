@@ -5,13 +5,11 @@ interface DocumentPictureInPictureOptions {
   preferInitialWindowPlacement?: boolean;
 }
 
-interface DocumentPictureInPicture {
+interface DocumentPictureInPicture extends EventTarget {
   window: Window | null;
   requestWindow(options?: DocumentPictureInPictureOptions): Promise<Window>;
 }
 
 interface Window {
-  documentPictureInPicture: DocumentPictureInPicture;
+  documentPictureInPicture?: DocumentPictureInPicture;
 }
-
-declare const documentPictureInPicture: DocumentPictureInPicture;

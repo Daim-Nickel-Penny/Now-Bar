@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Now Bar</title>
+    <link rel="stylesheet" href="panel.css" />
+  </head>
+  <body>
+    <header class="head">
+      <img class="logo" src="../icons/icon-48.png" alt="" width="22" height="22" />
+      <h1>Now Bar</h1>
+      <span id="status" class="status" data-state="idle">Open a music tab</span>
+    </header>
+
+    <section class="now" aria-live="polite">
+      <img id="art" class="art" alt="" width="56" height="56" />
+      <div class="meta">
+        <p id="title" class="title">Nothing playing</p>
+        <p class="artist"><span id="bars" class="bars"><i></i><i></i><i></i></span><span id="artist">Press play on YouTube Music or Spotify</span></p>
+      </div>
+    </section>
+
+    <button id="open" class="primary" type="button">Open floater</button>
+    <p id="hint" class="hint" hidden>The floater opens from the music tab. If Chrome asks for a click, use the Now Bar pill on the page.</p>
+    <div id="links" class="links">
+      <button class="link" type="button" data-url="https://music.youtube.com/">YouTube Music</button>
+      <button class="link" type="button" data-url="https://open.spotify.com/">Spotify</button>
+    </div>
+
+    <section class="prefs">
+      <label class="row">
+        <span>Open on play</span>
+        <input id="open-on-play" class="switch" type="checkbox" />
+      </label>
+
+      <div class="row">
+        <span>ASCII style</span>
+        <div class="segment" role="radiogroup" aria-label="ASCII style">
+          <label><input type="radio" name="ascii-style" value="dots" /><span>Dots</span></label>
+          <label><input type="radio" name="ascii-style" value="glyphs" /><span>Glyphs</span></label>
+        </div>
+      </div>
+
+      <div class="row">
+        <span>Opens as</span>
+        <div class="segment" role="radiogroup" aria-label="Layout">
+          <label><input type="radio" name="variant" value="expanded" /><span>Card</span></label>
+          <label><input type="radio" name="variant" value="pill" /><span>Pill</span></label>
+          <label><input type="radio" name="variant" value="icon" /><span>Icon</span></label>
+        </div>
+      </div>
+
+      <div class="row column">
+        <span>Scenes</span>
+        <div id="scenes" class="chips" role="group" aria-label="Scenes"></div>
+      </div>
+    </section>
+
+    <footer class="foot">Nothing leaves this machine.</footer>
+    <script src="panel.js"></script>
+  </body>
+</html>

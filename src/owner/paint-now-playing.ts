@@ -1,25 +1,33 @@
 import type { Track } from "../track/track.ts";
+import { setIcon, type FloaterShell } from "./floater-shell.ts";
 
-export function paintNowPlaying(
-  title: HTMLElement,
-  artist: HTMLElement,
-  art: HTMLImageElement,
-  track: Track | null,
-): void {
+const SOURCE_NAME = { youtubeMusic: "YouTube Music", spotifyWeb: "Spotify" } as const;
+
+function paintArt(img: HTMLImageElement, url: string | null): void {
+  if (url === null) {
+    img.removeAttribute("src");
+    return;
+  }
+  if (img.getAttribute("src") !== url) {
+    img.src = url;
+  }
+}
+
+export function paintNowPlaying(shell: FloaterShell, track: Track | null): void {
+  const playing = track?.playing === true;
+  shell.root.dataset.playing = playing ? "true" : "false";
+  setIcon(shell.play, playing ? "pause" : "play");
+  shell.play.setAttribute("aria-label", playing ? "Pause" : "Play");
   if (track === null) {
-    title.textContent = "Nothing playing";
-    artist.textContent = "";
-    art.removeAttribute("src");
-    art.alt = "";
+    shell.title.textContent = "Nothing playing";
+    shell.artist.textContent = "Press play in your music tab";
+    paintArt(shell.art, null);
+    paintArt(shell.artMini, null);
     return;
   }
-  title.textContent = track.title;
-  artist.textContent = track.artist;
-  if (track.artworkUrl === null) {
-    art.removeAttribute("src");
-    art.alt = "";
-    return;
-  }
-  art.alt = "";
-  art.src = track.artworkUrl;
+  shell.title.textContent = track.title;
+  shell.artist.textContent = track.artist === "" ? SOURCE_NAME[track.source] : track.artist;
+  shell.title.title = track.title;
+  paintArt(shell.art, track.artworkUrl);
+  paintArt(shell.artMini, track.artworkUrl);
 }

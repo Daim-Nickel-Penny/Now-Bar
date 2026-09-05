@@ -1,15 +1,15 @@
-import { cp, mkdir } from "node:fs/promises";
+import { cp, mkdir, rm } from "node:fs/promises";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import * as esbuild from "esbuild";
+import sharp from "sharp";
 
 const root = dirname(fileURLToPath(import.meta.url));
 const dist = join(root, "dist");
 const watch = process.argv.includes("--watch");
 
-await mkdir(join(dist, "owner"), { recursive: true });
-await mkdir(join(dist, "fonts"), { recursive: true });
-await mkdir(join(dist, "scenes"), { recursive: true });
+await rm(dist, { recursive: true, force: true });
+await mkdir(join(dist, "panel"), { recursive: true });
 await mkdir(join(dist, "icons"), { recursive: true });
 
 const buildOptions = {
@@ -17,42 +17,34 @@ const buildOptions = {
     "mailbox/service-worker": join(root, "src/mailbox/service-worker.ts"),
     "adapter/youtube-music": join(root, "src/adapter/youtube-music.ts"),
     "adapter/spotify-web": join(root, "src/adapter/spotify-web.ts"),
-    "owner/owner": join(root, "src/owner/owner.ts"),
+    "panel/panel": join(root, "src/panel/panel.ts"),
   },
   outdir: dist,
   bundle: true,
   format: "iife",
   platform: "browser",
   target: "chrome116",
-  minify: true,
+  minify: !watch,
   legalComments: "none",
   sourcemap: false,
   logLevel: "info",
+  loader: { ".css": "text" },
 };
+
+await cp(join(root, "src/manifest.json"), join(dist, "manifest.json"));
+await cp(join(root, "src/panel/panel.html"), join(dist, "panel/panel.html"));
+await cp(join(root, "src/panel/panel.css"), join(dist, "panel/panel.css"));
+
+for (const size of [16, 32, 48, 128]) {
+  await sharp(join(root, "logo.avif"))
+    .resize(size, size)
+    .png()
+    .toFile(join(dist, "icons", `icon-${size}.png`));
+}
 
 if (watch) {
   const ctx = await esbuild.context(buildOptions);
   await ctx.watch();
 } else {
   await esbuild.build(buildOptions);
-}
-
-await cp(join(root, "src/manifest.json"), join(dist, "manifest.json"));
-await cp(join(root, "src/owner/owner.html"), join(dist, "owner/owner.html"));
-await cp(join(root, "src/owner/glass.css"), join(dist, "owner/glass.css"));
-await cp(
-  join(root, "node_modules/@fontsource/poppins/files/poppins-latin-500-normal.woff2"),
-  join(dist, "fonts/poppins-500.woff2"),
-);
-await cp(
-  join(root, "node_modules/@fontsource/poppins/files/poppins-latin-600-normal.woff2"),
-  join(dist, "fonts/poppins-600.woff2"),
-);
-await cp(join(root, "ascii-disco.png"), join(dist, "scenes/disco.png"));
-await cp(join(root, "ascii-sample.png"), join(dist, "scenes/hearth.png"));
-
-const sharp = (await import("sharp")).default;
-const iconSource = join(root, "logo.avif");
-for (const size of [16, 32, 48, 128]) {
-  await sharp(iconSource).resize(size, size).png().toFile(join(dist, "icons", `icon-${size}.png`));
 }
