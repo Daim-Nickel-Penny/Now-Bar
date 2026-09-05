@@ -9,10 +9,11 @@ Read this when you add a Scene. File names use the words in [CONTEXT.md](../CONT
 Every frame in `src/scene/paint-scene.ts` does this, in order:
 
 1. Fill a small offscreen canvas with black.
-2. Call `scenery.draw(ctx, width, height, phase)`.
-3. Run that canvas through [asciify-engine](https://asciify.org/) (`imageToAsciiFrame` → `renderFrameToCanvas`) as **dots** or **glyphs**.
-4. Copy the ASCII onto the visible canvas.
-5. Paint the Axolotl last, at `scenery.stand`.
+2. Call `scenery.draw(ctx, width, stage, phase)` — `stage` is the height above the SceneGutter.
+3. Extend the last row of the room through the gutter so the glass sits on floor, not void.
+4. Run that canvas through [asciify-engine](https://asciify.org/) (`imageToAsciiFrame` → `renderFrameToCanvas`) as **dots** or **glyphs**.
+5. Copy the ASCII onto the visible canvas.
+6. Paint the Axolotl last, at `scenery.stand` on the stage.
 
 The Axolotl is never asciified, and its pixel is a fixed `SPRITE_PX` rather than one ASCII cell, so it
 stays chunky while the Scenery keeps a fine grid. Dots run at a 3 px cell; glyphs get a cell 2.2x
@@ -119,9 +120,11 @@ objects out of `panel` and `slab`, and pick levels off the `TONE` scale (`void`,
 just reads as dim grey. Pass `hue(PINK, 0.85)` and up for anything meant to look coloured, and keep the
 area small. The named tints (`PINK`, `ROSE`, `CYAN`, `AMBER`, `MINT`, `VIOLET`) come off `assets/logo.png`.
 
-**Stand.** `{ x, y }` is where the Axolotl's feet sit, in 0–1 of the canvas. The sprite is 32 × 20 of its
-own pixels, about 40% of the Floater's width. Leave that much clear. Existing stands sit around
-`x: 0.24–0.50`, `y: 0.70–0.88`.
+**Stand.** `{ x, y }` is where the Axolotl's feet sit, in 0–1 of the **stage** — the Scene above the
+SceneGutter (the glass card). The loop measures the card on resize and keeps the room and the
+Axolotl in that band; the floor is extended through the gutter so the player sits on the room, not
+on empty black. The sprite is 32 × 20 of its own pixels, about 40% of the Floater's width. Leave
+that much clear. Existing stands sit around `x: 0.24–0.50`, `y: 0.70–0.88`.
 
 **Loop.** `wave(phase, cycles)` and `(hash(i) + phase * speed) % 1` wrap cleanly when `cycles` and `speed` are integers. A `Math.random()` per frame will flicker and will not loop.
 

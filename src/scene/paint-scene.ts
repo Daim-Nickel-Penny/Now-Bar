@@ -23,6 +23,13 @@ export function mountAsciiBuffer(target: HTMLCanvasElement): HTMLCanvasElement {
   return buffer;
 }
 
+function extendFloor(ctx: CanvasRenderingContext2D, canvas: HTMLCanvasElement, stage: number): void {
+  if (stage >= canvas.height || stage < 1) {
+    return;
+  }
+  ctx.drawImage(canvas, 0, stage - 1, canvas.width, 1, 0, stage, canvas.width, canvas.height - stage);
+}
+
 export function paintScene(
   target: HTMLCanvasElement,
   source: HTMLCanvasElement,
@@ -31,6 +38,7 @@ export function paintScene(
   scene: Scene,
   style: AsciiStyle,
   elapsed: number,
+  gutterCss: number,
 ): void {
   const ctx = target.getContext("2d");
   if (ctx === null || target.width === 0 || target.height === 0) {
@@ -54,17 +62,22 @@ export function paintScene(
   }
   const phase = (elapsed % scene.loopMs) / scene.loopMs;
   const scenery = sceneryFor(scene.id);
+  const gutter = Math.min(target.height - 1, Math.round(Math.max(0, gutterCss) * dpr));
+  const stageFrac = gutter <= 0 ? 1 : (target.height - gutter) / target.height;
+  const sourceStage = Math.max(1, Math.round(height * stageFrac));
   sourceCtx.fillStyle = BACKDROP;
   sourceCtx.fillRect(0, 0, width, height);
-  scenery.draw(sourceCtx, width, height, phase);
+  scenery.draw(sourceCtx, width, sourceStage, phase);
+  extendFloor(sourceCtx, source, sourceStage);
   const grid = renderAscii(source, ascii, asciiOpts);
   ctx.clearRect(0, 0, target.width, target.height);
   ctx.drawImage(ascii, 0, 0);
   if (grid === null) {
     return;
   }
+  const stageH = Math.max(1, target.height - gutter);
   const spriteCell = SPRITE_PX * dpr;
   const col = Math.round((scenery.stand.x * target.width) / spriteCell) - Math.floor(SPRITE_W / 2);
-  const row = Math.round((scenery.stand.y * target.height) / spriteCell) - SPRITE_H;
+  const row = Math.round((scenery.stand.y * stageH) / spriteCell) - SPRITE_H;
   drawAxolotl(ctx, spriteCell, col, row, elapsed / 500, scene.activity);
 }

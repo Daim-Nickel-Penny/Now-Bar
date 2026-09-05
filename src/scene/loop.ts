@@ -1,6 +1,7 @@
 import type { AsciiStyle } from "../preferences/preferences.ts";
 import { mountAsciiBuffer, paintScene } from "./paint-scene.ts";
 import { firstScene, nextScene, type Scene } from "./playlist.ts";
+import { sceneGutterCss } from "./scene-gutter.ts";
 import type { SceneId } from "./scene-id.ts";
 
 export type SceneLoopOptions = {
@@ -43,11 +44,16 @@ export function createSceneLoop(target: HTMLCanvasElement, initial: SceneLoopOpt
   let frameHandle = 0;
   /** Set by the ResizeObserver so the hot path never reads layout. */
   let sizeDirty = true;
+  let gutterCss = 0;
 
   const resizes = new ResizeObserver(() => {
     sizeDirty = true;
   });
   resizes.observe(target);
+  const card = doc.querySelector(".card");
+  if (card instanceof Element) {
+    resizes.observe(card);
+  }
 
   function holdMs(): number {
     return Math.ceil(HOLD_MS / scene.loopMs) * scene.loopMs;
@@ -58,11 +64,14 @@ export function createSceneLoop(target: HTMLCanvasElement, initial: SceneLoopOpt
       return false;
     }
     sizeDirty = false;
+    const nextGutter = sceneGutterCss(target);
+    const gutterChanged = nextGutter !== gutterCss;
+    gutterCss = nextGutter;
     const dpr = view.devicePixelRatio || 1;
     const width = Math.round(target.clientWidth * dpr);
     const height = Math.round(target.clientHeight * dpr);
     if (width === target.width && height === target.height) {
-      return false;
+      return gutterChanged;
     }
     target.width = width;
     target.height = height;
@@ -77,7 +86,7 @@ export function createSceneLoop(target: HTMLCanvasElement, initial: SceneLoopOpt
       return;
     }
     const elapsed = options.reducedMotion ? 0 : now - sceneStart;
-    paintScene(target, source, ascii, view, scene, options.style, elapsed);
+    paintScene(target, source, ascii, view, scene, options.style, elapsed, gutterCss);
   }
 
   function advance(next: Scene): void {

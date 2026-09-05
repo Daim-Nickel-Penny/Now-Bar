@@ -65,6 +65,10 @@ _Avoid_: size, mode, state, view
 One seamless looping animation the Floater shows behind the glass: Scenery plus the Axolotl.
 _Avoid_: background, wallpaper, GIF, still, video
 
+**SceneGutter**:
+The bottom band of the Scene reserved for the glass card. The room and Axolotl compose above it; the floor continues through it so the canvas never shows empty void.
+_Avoid_: padding, margin, safe area, letterbox
+
 **Scenery**:
 The drawn backdrop of a Scene, rendered through asciify-engine as dots or glyphs.
 _Avoid_: background, set, environment
