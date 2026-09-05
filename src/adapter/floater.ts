@@ -151,9 +151,7 @@ function buildControls(doc: Document): HTMLElement {
   controls.className = "controls";
 
   const buttons: Array<{ action: string; label: string; path: string }> = [
-    { action: "prev", label: "Previous", path: "M6 6h2v12H6zM20 6v12L9.5 12z" },
     { action: "play", label: "Play or pause", path: "M8 5v14l11-7z" },
-    { action: "next", label: "Next", path: "M16 6h2v12h-2zM4 6v12l10.5-6z" },
     { action: "scene", label: "Next scene", path: "M4 4h4v4H4zM10 4h4v4h-4zM16 4h4v4h-4zM4 10h4v4H4zM10 10h4v4h-4zM16 10h4v4h-4zM4 16h4v4H4zM10 16h4v4h-4zM16 16h4v4h-4z" },
     { action: "collapse", label: "Collapse", path: "M6 11h12v2H6z" },
     { action: "close", label: "Close", path: "M6.4 5 5 6.4 10.6 12 5 17.6 6.4 19 12 13.4 17.6 19 19 17.6 13.4 12 19 6.4 17.6 5 12 10.6z" },
@@ -202,9 +200,6 @@ function bindControls(doc: Document, pip: Window): void {
           break;
         case "close":
           pip.close();
-          break;
-        case "prev":
-        case "next":
           break;
       }
     });
@@ -258,6 +253,11 @@ function updateTrackUI(doc: Document): void {
   artist.textContent = currentTrack.artist;
   if (currentTrack.artworkUrl) {
     art.src = currentTrack.artworkUrl;
+    art.onerror = () => {
+      art.removeAttribute("src");
+    };
+  } else {
+    art.removeAttribute("src");
   }
 }
 
@@ -304,11 +304,12 @@ function getFloaterCSS(): string {
     }
     .card {
       position: absolute;
-      left: 12px; bottom: 12px; right: 12px;
+      left: 12px; bottom: 12px;
       display: flex;
       align-items: center;
       gap: 10px;
       padding: 8px;
+      padding-right: 140px;
       border-radius: 16px;
       background: var(--glass);
       border: 1px solid var(--stroke);
@@ -333,10 +334,10 @@ function getFloaterCSS(): string {
     #artist { font-size: 11px; color: var(--ink-dim); }
     .controls {
       position: absolute;
-      left: 12px; bottom: 68px;
+      right: 12px; bottom: 12px;
       display: flex;
-      gap: 6px;
-      padding: 6px;
+      gap: 4px;
+      padding: 4px;
       border-radius: 999px;
       background: var(--glass);
       border: 1px solid var(--stroke);
