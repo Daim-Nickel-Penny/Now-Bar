@@ -1,6 +1,6 @@
 # Now Bar
 
-A local now-playing snapshot from a music tab, shown in a floating glass shell over a dotted ASCII scene.
+A local now-playing snapshot from a music tab, shown in a floating glass shell below a dotted ASCII scene.
 
 ## Language
 
@@ -38,7 +38,8 @@ The cover image URL on a Track, allowed only from a Source CDN hostname.
 _Avoid_: thumbnail, album art, image, cover
 
 **Floater**:
-The always-on-top Document Picture-in-Picture window that paints the Track over a Scene.
+The always-on-top Document Picture-in-Picture window. A Scene fills the upper stage. The Track sits
+on a FalseScreen below it.
 _Avoid_: popup, overlay, widget, PiP player
 
 **Owner**:
@@ -62,12 +63,13 @@ How the Floater is laid out: Expanded, Pill, or Icon.
 _Avoid_: size, mode, state, view
 
 **Scene**:
-One seamless looping animation the Floater shows behind the glass: Scenery plus the Axolotl.
+One seamless looping animation the Floater shows above the FalseScreen: Scenery plus the Axolotl.
 _Avoid_: background, wallpaper, GIF, still, video
 
-**SceneGutter**:
-The bottom band of the Scene reserved for the glass card. The room and Axolotl compose above it; the floor continues through it so the canvas never shows empty void.
-_Avoid_: padding, margin, safe area, letterbox
+**FalseScreen**:
+The band under the Scene that holds the glass. A subtle ambient that is the same for every Scene, so
+the room never shares the window with the card.
+_Avoid_: gutter, dock, footer, safe area, letterbox
 
 **Scenery**:
 The drawn backdrop of a Scene, rendered through asciify-engine as dots or glyphs.

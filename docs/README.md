@@ -23,3 +23,4 @@ Why, not how.
 - [0004](./adr/0004-no-telemetry.md) — now-playing never leaves the machine
 - [0005](./adr/0005-preferences-local.md) — Preferences in `storage.local`, never a Track
 - [0006](./adr/0006-level-is-media-volume.md) — Level is media.volume, never a page form write
+- [0007](./adr/0007-false-screen.md) — the glass sits on a FalseScreen, not on the Scene

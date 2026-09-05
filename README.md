@@ -12,8 +12,6 @@ Inspired by [Claude FM](https://www.youtube.com/watch?v=tRsQsTMvPNg)
 
 https://github.com/user-attachments/assets/ca8b730c-4027-4d9f-b500-42fd71431205
 
-
-
 ## Requirements
 
 - Chrome 116 or newer, on a desktop
@@ -59,7 +57,9 @@ In the floating window:
 | Icon                   | Expand back to the card                                                      |
 | Close                  | Close the window                                                             |
 
-Drag the window's edge to resize it. The card remembers the size you leave it at, and the layout drops the scene, then the skip buttons, then the track text as it gets smaller.
+Drag the window's edge to resize it. The card remembers the size you leave it at. The scene stays
+visible above the track and shrinks with the leftover space; it is never hidden under the controls.
+Skip buttons, then the track text, drop as the window gets narrower.
 
 Chrome draws the title bar on this kind of window and there is no way for an extension to hide or restyle it. Dragging the window means dragging that bar.
 

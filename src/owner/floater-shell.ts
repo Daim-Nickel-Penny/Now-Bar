@@ -4,6 +4,7 @@ import type { ShellVariant } from "./shell-variant.ts";
 export type FloaterShell = {
   root: HTMLElement;
   scene: HTMLCanvasElement;
+  falseScreen: HTMLCanvasElement;
   art: HTMLImageElement;
   artMini: HTMLImageElement;
   title: HTMLElement;
@@ -47,7 +48,9 @@ export function buildFloaterShell(doc: Document, variant: ShellVariant): Floater
 
   const scene = element(doc, "canvas", "scene");
   scene.setAttribute("aria-hidden", "true");
-  const dim = element(doc, "div", "dim");
+  const falseScreen = element(doc, "div", "false-screen");
+  const falseScreenInk = doc.createElement("canvas");
+  falseScreenInk.setAttribute("aria-hidden", "true");
 
   const tools = element(doc, "div", "tools");
   const skipScene = iconButton(doc, "scene", "Next scene", "skip-scene");
@@ -83,6 +86,7 @@ export function buildFloaterShell(doc: Document, variant: ShellVariant): Floater
   volume.append(mute, level);
   transport.append(prev, play, next, volume);
   card.append(art, meta, transport);
+  falseScreen.append(falseScreenInk, card);
 
   const expand = element(doc, "button", "expand");
   expand.type = "button";
@@ -91,12 +95,13 @@ export function buildFloaterShell(doc: Document, variant: ShellVariant): Floater
   artMini.alt = "";
   expand.appendChild(artMini);
 
-  root.append(scene, dim, tools, card, expand);
+  root.append(scene, falseScreen, tools, expand);
   doc.body.appendChild(root);
 
   return {
     root,
     scene,
+    falseScreen: falseScreenInk,
     art,
     artMini,
     title,

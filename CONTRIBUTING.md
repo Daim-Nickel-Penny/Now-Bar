@@ -30,10 +30,13 @@ A change that adds a permission, a remote call, a new origin, MAIN-world script,
 The floating window is always on top. Waste there is visible.
 
 - One Scene at a time. No videos, no `captureStream`, no image assets for rooms — draw, then asciify.
+- The Scene fills the leftover stage. The glass sits on a FalseScreen, painted once on resize, never
+  on the Scene loop.
 - Cap the loop at about 20 fps. Stop it when the window is collapsed or closed.
 - Honour `prefers-reduced-motion`: freeze the phase, still show the room.
 - Coalesce player-bar reads. Do not scan the page on every mutation.
-- Keep source canvases small. Memory should stay two canvases and one ASCII frame.
+- Keep source canvases small. The Scene loop stays two canvases and one ASCII frame. The FalseScreen
+  is a third canvas, still.
 - One idea per file, under 200 lines.
 
 ## Add a scene

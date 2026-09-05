@@ -1,5 +1,6 @@
 import type { SourceControls } from "../adapter/source-controls.ts";
 import type { Preferences } from "../preferences/preferences.ts";
+import { attachFalseScreen, type FalseScreen } from "../scene/false-screen.ts";
 import { createSceneLoop, type SceneLoop } from "../scene/loop.ts";
 import type { Track } from "../track/track.ts";
 import { bindFloaterControls } from "./floater-controls.ts";
@@ -30,6 +31,7 @@ type Live = {
   pip: Window;
   shell: FloaterShell;
   scenes: SceneLoop;
+  falseScreen: FalseScreen;
   variant: ShellVariant;
   bars: PlayingBars;
 };
@@ -87,7 +89,8 @@ export function createFloaterOwner(
       },
     });
     const bars = attachPlayingBars(shell.bars);
-    const next: Live = { pip, shell, scenes, variant: preferences.variant, bars };
+    const falseScreen = attachFalseScreen(shell.falseScreen);
+    const next: Live = { pip, shell, scenes, falseScreen, variant: preferences.variant, bars };
     bindFloaterControls(shell, {
       controls,
       scenes,
@@ -113,6 +116,7 @@ export function createFloaterOwner(
     pip.addEventListener("pagehide", () => {
       pip.clearTimeout(settle);
       scenes.dispose();
+      next.falseScreen.dispose();
       bars.dispose();
       live = null;
       for (const listener of closeListeners) {
