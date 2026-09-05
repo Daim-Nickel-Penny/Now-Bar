@@ -11,16 +11,20 @@ function isResizeObserverError(event: ErrorEvent): boolean {
   return event.message.includes(RESIZE_OBSERVER_MSG);
 }
 
-export function initFloater(): void {
-  window.addEventListener("error", (event) => {
+function suppressResizeObserverError(win: Window): void {
+  win.addEventListener("error", (event) => {
     if (isResizeObserverError(event)) {
       event.preventDefault();
       event.stopImmediatePropagation();
     }
   });
+}
+
+export function initFloater(): void {
+  suppressResizeObserverError(window);
   const button = createTriggerButton();
   document.body.appendChild(button);
-  button.addEventListener("click", openFloater, { once: false });
+  button.addEventListener("click", handleTriggerClick);
 }
 
 function createTriggerButton(): HTMLButtonElement {
@@ -52,7 +56,7 @@ function createTriggerButton(): HTMLButtonElement {
   return button;
 }
 
-async function openFloater(): Promise<void> {
+function handleTriggerClick(): void {
   if (pipWindow !== null && !pipWindow.closed) {
     pipWindow.focus();
     return;
@@ -60,27 +64,26 @@ async function openFloater(): Promise<void> {
   if (!("documentPictureInPicture" in window)) {
     return;
   }
-  const pip = await window.documentPictureInPicture.requestWindow({
-    width: 360,
-    height: 220,
-    disallowReturnToOpener: true,
-  });
-  pipWindow = pip;
-  buildFloaterUI(pip);
-  pip.addEventListener("pagehide", () => {
-    pipWindow = null;
-    scenes?.stop();
-    scenes = null;
-  });
+  window.documentPictureInPicture
+    .requestWindow({
+      width: 360,
+      height: 220,
+      disallowReturnToOpener: true,
+    })
+    .then((pip) => {
+      pipWindow = pip;
+      suppressResizeObserverError(pip);
+      buildFloaterUI(pip);
+      pip.addEventListener("pagehide", () => {
+        pipWindow = null;
+        scenes?.stop();
+        scenes = null;
+      });
+    })
+    .catch(() => undefined);
 }
 
 function buildFloaterUI(pip: Window): void {
-  pip.addEventListener("error", (event) => {
-    if (isResizeObserverError(event)) {
-      event.preventDefault();
-      event.stopImmediatePropagation();
-    }
-  });
   const doc = pip.document;
   doc.head.replaceChildren();
   doc.body.replaceChildren();
@@ -179,7 +182,9 @@ function buildControls(doc: Document): HTMLElement {
 
 function bindControls(doc: Document, pip: Window): void {
   const shell = doc.querySelector<HTMLElement>("#shell");
-  if (shell === null) return;
+  if (shell === null) {
+    return;
+  }
 
   doc.querySelectorAll(".icon-btn").forEach((btn) => {
     btn.addEventListener("click", (e) => {
@@ -225,7 +230,9 @@ function collapseShell(shell: HTMLElement): void {
 
 function togglePlayback(): void {
   const media = document.querySelector<HTMLMediaElement>("video, audio");
-  if (media === null) return;
+  if (media === null) {
+    return;
+  }
   if (media.paused) {
     void media.play();
   } else {
@@ -237,7 +244,9 @@ function updateTrackUI(doc: Document): void {
   const title = doc.querySelector("#title");
   const artist = doc.querySelector("#artist");
   const art = doc.querySelector<HTMLImageElement>("#art");
-  if (title === null || artist === null || art === null) return;
+  if (title === null || artist === null || art === null) {
+    return;
+  }
 
   if (currentTrack === null) {
     title.textContent = "Nothing playing";
