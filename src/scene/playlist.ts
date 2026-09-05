@@ -29,7 +29,15 @@ export const playlist: readonly Scene[] = [
   { id: "neon", src: "", kind: "field", motion: "sparkle", loopMs: 16000 },
 ];
 
+export function sceneAt(index: number): Scene {
+  const scene = playlist.at(index % playlist.length);
+  if (scene === undefined) {
+    throw new Error("playlist");
+  }
+  return scene;
+}
+
 export function nextScene(id: SceneId): Scene {
   const index = playlist.findIndex((scene) => scene.id === id);
-  return playlist[(index + 1) % playlist.length] ?? playlist[0];
+  return sceneAt(index + 1);
 }

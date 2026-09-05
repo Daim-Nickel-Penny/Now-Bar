@@ -1,7 +1,7 @@
 import { asciifyVideo } from "asciify-engine";
 import { drawField, resizeField } from "./field-draw.ts";
 import { drawPlate, resizePlate } from "./plate-draw.ts";
-import { nextScene, playlist, type Scene } from "./playlist.ts";
+import { nextScene, sceneAt, type Scene } from "./playlist.ts";
 
 type Stop = () => void;
 
@@ -21,7 +21,7 @@ export type SceneLoop = {
 };
 
 export function createSceneLoop(mount: HTMLElement): SceneLoop {
-  let scene = playlist[0];
+  let scene = sceneAt(0);
   let stopCurrent: Stop | undefined;
   let timer = 0;
   let running = false;
