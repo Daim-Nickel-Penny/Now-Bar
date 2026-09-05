@@ -1,4 +1,5 @@
 import type { SceneMotion } from "./playlist.ts";
+import { drawAxolotl, type AxolotlActivity } from "./axolotl-sprite.ts";
 
 const WIDTH = 720;
 const HEIGHT = 405;
@@ -18,6 +19,7 @@ export function drawPlate(
   image: CanvasImageSource,
   motion: SceneMotion,
   time: number,
+  activity: AxolotlActivity,
 ): void {
   const zoom = motion === "sparkle" ? 1.06 : 1.04;
   const driftX = Math.sin(time * 0.15) * 10;
@@ -42,4 +44,5 @@ export function drawPlate(
       ctx.fillRect(x, y, 1.5, 1.5);
     }
   }
+  drawAxolotl(ctx, WIDTH * 0.75, HEIGHT * 0.65, time, activity);
 }

@@ -67,7 +67,7 @@ async function playPlate(mount: HTMLElement, scene: Scene): Promise<Stop> {
   const source = document.createElement("canvas");
   const ctx = resizePlate(source);
   return driveVideo(mount, source, (time) => {
-    drawPlate(ctx, image, scene.motion, time);
+    drawPlate(ctx, image, scene.motion, time, scene.activity);
   });
 }
 
@@ -75,7 +75,7 @@ async function playField(mount: HTMLElement, scene: Scene): Promise<Stop> {
   const source = document.createElement("canvas");
   const ctx = resizeField(source);
   return driveVideo(mount, source, (time) => {
-    drawField(ctx, scene.id, time);
+    drawField(ctx, scene.id, time, scene.activity);
   });
 }
 
