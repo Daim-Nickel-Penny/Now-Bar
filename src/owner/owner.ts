@@ -22,11 +22,17 @@ if (
   throw new Error("owner");
 }
 
-const scenes = createSceneLoop(sceneRoot);
+const shellEl = shell;
+const sceneEl = sceneRoot;
+const pillEl = pill;
+const titleEl = title;
+const artistEl = artist;
+const artEl = art;
+const scenes = createSceneLoop(sceneEl);
 let variant: ShellVariant = "expanded";
 
 function applyTrack(track: Track | null): void {
-  paintNowPlaying(title, artist, art, track);
+  paintNowPlaying(titleEl, artistEl, artEl, track);
 }
 
 chrome.storage.session.onChanged.addListener((changes) => {
@@ -43,15 +49,15 @@ void chrome.runtime.sendMessage({ type: "requestTrack" }, (response: unknown) =>
   }
 });
 
-pill.addEventListener("click", (event) => {
+pillEl.addEventListener("click", (event) => {
   event.stopPropagation();
-  variant = cycleShell(shell, scenes, variant);
+  variant = cycleShell(shellEl, scenes, variant);
   if (variant === "expanded" && documentPictureInPicture.window === null) {
-    void openFloater(shell);
+    void openFloater(shellEl);
   }
 });
 
-sceneRoot.addEventListener("click", () => {
+sceneEl.addEventListener("click", () => {
   if (variant !== "expanded") {
     return;
   }
@@ -68,13 +74,13 @@ document.addEventListener("visibilitychange", () => {
 
 void scenes.start();
 
-shell.addEventListener(
+shellEl.addEventListener(
   "pointerdown",
   () => {
     if (documentPictureInPicture.window !== null) {
       return;
     }
-    void openFloater(shell);
+    void openFloater(shellEl);
   },
   { once: true },
 );

@@ -23,7 +23,7 @@ async function openOwner(): Promise<void> {
     height: OWNER_HEIGHT,
     focused: true,
   });
-  ownerWindowId = created.id;
+  ownerWindowId = created?.id;
 }
 
 chrome.windows.onRemoved.addListener((id) => {
