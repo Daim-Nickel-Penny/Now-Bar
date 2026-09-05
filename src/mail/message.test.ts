@@ -94,6 +94,6 @@ describe("parseOwnerMail", () => {
 
 describe("assertNever", () => {
   it("throws on an impossible value", () => {
-    expect(() => assertNever("junk" as never)).toThrow("unexpected");
+    expect(() => assertNever("junk" as never)).toThrow("unexpected:");
   });
 });

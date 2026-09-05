@@ -1,11 +1,12 @@
 import type { Track } from "../track/track.ts";
+import { sanitizeTrack } from "../track/sanitize-track.ts";
 
 export type AdapterMail = { type: "track"; track: Track } | { type: "idle" };
 export type OwnerMail = { type: "requestTrack" };
 export type Mail = AdapterMail | OwnerMail;
 
 export function assertNever(value: never): never {
-  throw new Error("unexpected");
+  throw new Error(`unexpected:${String(value)}`);
 }
 
 function mailRecord(input: unknown): Record<string, unknown> | null {
@@ -16,36 +17,7 @@ function mailRecord(input: unknown): Record<string, unknown> | null {
 }
 
 function trackFromUnknown(input: unknown): Track | null {
-  const raw = mailRecord(input);
-  if (!raw) {
-    return null;
-  }
-  if (raw.source !== "youtubeMusic" && raw.source !== "spotifyWeb") {
-    return null;
-  }
-  if (typeof raw.title !== "string") {
-    return null;
-  }
-  if (typeof raw.artist !== "string") {
-    return null;
-  }
-  if (raw.album !== null && typeof raw.album !== "string") {
-    return null;
-  }
-  if (raw.artworkUrl !== null && typeof raw.artworkUrl !== "string") {
-    return null;
-  }
-  if (typeof raw.playing !== "boolean") {
-    return null;
-  }
-  return {
-    source: raw.source,
-    title: raw.title,
-    artist: raw.artist,
-    album: raw.album,
-    artworkUrl: raw.artworkUrl,
-    playing: raw.playing,
-  };
+  return sanitizeTrack(input);
 }
 
 export function parseAdapterMail(input: unknown): AdapterMail | null {
