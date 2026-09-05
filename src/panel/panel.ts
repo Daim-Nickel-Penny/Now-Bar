@@ -1,4 +1,5 @@
 import { parseNowPlayingReply, type NowPlayingReply, type PanelMail } from "../mail/message.ts";
+import { attachPlayingBars } from "../owner/playing-bars.ts";
 import { isShellVariant } from "../owner/shell-variant.ts";
 import { SESSION_SOURCE_KEY } from "../mailbox/session-now-playing.ts";
 import {
@@ -24,6 +25,7 @@ const art = must<HTMLImageElement>("#art");
 const title = must<HTMLElement>("#title");
 const artist = must<HTMLElement>("#artist");
 const bars = must<HTMLElement>("#bars");
+const playingBars = attachPlayingBars(bars);
 const openButton = must<HTMLButtonElement>("#open");
 const hint = must<HTMLElement>("#hint");
 const links = must<HTMLElement>("#links");
@@ -52,6 +54,7 @@ function paintTrack(reply: NowPlayingReply | null): void {
   openButton.disabled = !connected;
   links.hidden = connected;
   bars.dataset.playing = playing ? "true" : "false";
+  playingBars.setPlaying(playing);
   if (rotted) {
     title.textContent = "Can't read the player";
     artist.textContent = "The site changed its layout. Now Bar needs an update.";

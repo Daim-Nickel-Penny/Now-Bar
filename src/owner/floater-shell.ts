@@ -95,7 +95,6 @@ export function buildFloaterShell(doc: Document, variant: ShellVariant): Floater
   const title = element(doc, "p", "title");
   const artist = element(doc, "p", "artist");
   const bars = element(doc, "span", "bars");
-  bars.append(doc.createElement("i"), doc.createElement("i"), doc.createElement("i"));
   const artistText = element(doc, "span", "artist-text");
   artist.append(bars, artistText);
   meta.append(title, artist);

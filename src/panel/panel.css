@@ -122,9 +122,9 @@ h1 {
 .bars {
   display: none;
   align-items: flex-end;
-  gap: 1.5px;
-  width: 11px;
-  height: 10px;
+  gap: 1px;
+  width: 13px;
+  height: 11px;
   flex: 0 0 auto;
 }
 
@@ -133,30 +133,12 @@ h1 {
 }
 
 .bars i {
-  width: 2px;
-  height: 30%;
+  width: 1.5px;
+  height: 100%;
   border-radius: 1px;
   background: var(--accent);
-  animation: bar 900ms ease-in-out infinite;
-}
-
-.bars i:nth-child(2) {
-  animation-delay: -300ms;
-}
-
-.bars i:nth-child(3) {
-  animation-delay: -600ms;
-}
-
-@keyframes bar {
-  0%,
-  100% {
-    height: 30%;
-  }
-
-  50% {
-    height: 100%;
-  }
+  transform: scaleY(var(--level, 0.28));
+  transform-origin: bottom;
 }
 
 .primary {
@@ -344,9 +326,8 @@ h1 {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .bars i {
-    animation: none;
-    height: 60%;
+  .bars[data-playing="true"] i {
+    --level: 0.6;
   }
 
   .switch,

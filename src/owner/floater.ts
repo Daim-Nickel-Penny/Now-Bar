@@ -12,6 +12,7 @@ import {
   resizeFloater,
 } from "./floater-window.ts";
 import { paintNowPlaying } from "./paint-now-playing.ts";
+import { attachPlayingBars, type PlayingBars } from "./playing-bars.ts";
 import { nextVariant, variantSize, type ShellSize, type ShellVariant } from "./shell-variant.ts";
 
 export type FloaterOwner = {
@@ -22,7 +23,13 @@ export type FloaterOwner = {
   onClose: (listener: () => void) => void;
 };
 
-type Live = { pip: Window; shell: FloaterShell; scenes: SceneLoop; variant: ShellVariant };
+type Live = {
+  pip: Window;
+  shell: FloaterShell;
+  scenes: SceneLoop;
+  variant: ShellVariant;
+  bars: PlayingBars;
+};
 
 const RESIZE_SETTLE_MS = 500;
 
@@ -71,7 +78,8 @@ export function createFloaterOwner(
       active: preferences.activeScenes,
       reducedMotion: pip.matchMedia("(prefers-reduced-motion: reduce)").matches,
     });
-    const next: Live = { pip, shell, scenes, variant: preferences.variant };
+    const bars = attachPlayingBars(shell.bars);
+    const next: Live = { pip, shell, scenes, variant: preferences.variant, bars };
     bindFloaterControls(shell, {
       controls,
       scenes,
@@ -97,12 +105,14 @@ export function createFloaterOwner(
     pip.addEventListener("pagehide", () => {
       pip.clearTimeout(settle);
       scenes.dispose();
+      bars.dispose();
       live = null;
       for (const listener of closeListeners) {
         listener();
       }
     });
     paintNowPlaying(shell, track);
+    bars.setPlaying(track?.playing === true);
     if (preferences.variant === "expanded") {
       scenes.start();
     }
@@ -137,6 +147,7 @@ export function createFloaterOwner(
       track = next;
       if (live !== null) {
         paintNowPlaying(live.shell, track);
+        live.bars.setPlaying(track?.playing === true);
       }
     },
     setPreferences(next) {
