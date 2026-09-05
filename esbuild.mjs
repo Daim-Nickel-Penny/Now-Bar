@@ -50,3 +50,11 @@ await cp(
 );
 await cp(join(root, "ascii-disco.png"), join(dist, "scenes/disco.png"));
 await cp(join(root, "ascii-sample.png"), join(dist, "scenes/hearth.png"));
+
+const { execFile } = await import("node:child_process");
+const { promisify } = await import("node:util");
+const run = promisify(execFile);
+const iconSource = join(dist, "scenes/disco.png");
+for (const size of [16, 32, 48, 128]) {
+  await run("sips", ["-z", String(size), String(size), iconSource, "--out", join(dist, "icons", `icon-${size}.png`)]);
+}
