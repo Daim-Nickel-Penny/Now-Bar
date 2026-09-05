@@ -1,7 +1,7 @@
 export type Pixels = readonly string[];
 export type Palette = Readonly<Record<string, string>>;
 
-/** Taken off assets/logo.png: a pale pink voxel axolotl in charcoal headphones. */
+/** Pink body off assets/logo.png. Gills are the collage blue; headphones are black. */
 export const AXOLOTL_PALETTE: Palette = {
   W: "#ffeaf3",
   B: "#fbcede",
@@ -9,14 +9,14 @@ export const AXOLOTL_PALETTE: Palette = {
   S: "#e6a2c2",
   P: "#ff7fb0",
   C: "#ff9dc6",
-  G: "#ff5d97",
-  g: "#ff9ec4",
-  R: "#d8386f",
+  G: "#4d94ff",
+  g: "#8ab6ff",
+  R: "#2f68c8",
   E: "#33143a",
   M: "#8c2f57",
-  H: "#3a3a46",
-  h: "#2a2a33",
-  L: "#7b7b8b",
+  H: "#141416",
+  h: "#0a0a0c",
+  L: "#2a2a30",
   N: "#ff77ad",
 };
 
